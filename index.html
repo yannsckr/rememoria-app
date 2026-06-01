@@ -28,6 +28,12 @@
     <h1 class="splash-title">ReMemória</h1>
     <p class="splash-sub">Patrimônios Históricos</p>
     <div class="splash-loader"><span></span></div>
+    <!-- Botão invisível master — duplo toque abre o login -->
+    <div id="splashSecretBtn"
+      onclick="secretTap()"
+      ontouchend="secretTap(); event.preventDefault();"
+      style="width:100%;height:44px;margin-top:8px;cursor:default;-webkit-tap-highlight-color:transparent;background:transparent;">
+    </div>
   </div>
 </div>
 
@@ -39,13 +45,18 @@
   <!-- ── TELA HOME ── -->
   <section id="screen-home" class="screen active">
     <!-- Topo: marca + notificação -->
-    <header class="home-header">
+    <header class="home-header" style="position:relative;">
       <div class="header-top">
         <div>
           <p class="header-greeting">Bem-vindo ao</p>
           <h1 class="header-brand">ReMemória</h1>
         </div>
         <button class="btn-icon" onclick="openNotif()">🔔</button>
+      </div>
+      <!-- Gatilho secreto invisível sobre o logo — 2 toques rápidos abre o login -->
+      <div id="secretTrigger"
+        style="position:absolute;top:44px;left:16px;width:140px;height:62px;z-index:99;cursor:default;-webkit-tap-highlight-color:transparent;"
+        onclick="secretTap()" ontouchend="secretTap(); event.preventDefault();">
       </div>
     </header>
 
@@ -124,6 +135,164 @@
     </div>
   </section>
 
+  <!-- ── TELA ADMIN ── -->
+  <section id="screen-admin" class="screen">
+    <header class="page-header admin-page-header">
+      <div class="admin-header-left">
+        <h2>Admin</h2>
+        <span class="admin-badge">Painel de Gestão</span>
+      </div>
+      <button class="btn-icon" onclick="loadAdminList()">🔄</button>
+    </header>
+
+    <div class="admin-content">
+
+      <!-- Tabs -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="novo" onclick="switchAdminTab('novo',this)">➕ Novo</button>
+        <button class="admin-tab" data-tab="lista" onclick="switchAdminTab('lista',this)">📋 Cadastrados</button>
+      </div>
+
+      <!-- TAB: Novo patrimônio -->
+      <div id="admin-tab-novo" class="admin-tab-content active">
+        <form id="adminForm" class="admin-form" onsubmit="return false">
+
+          <div class="admin-section-title">Identificação</div>
+
+          <div class="admin-field">
+            <label>Nome do Patrimônio *</label>
+            <input type="text" id="af-nome" placeholder="Ex: Igreja Nossa Senhora da Paz" required />
+          </div>
+          <div class="admin-field">
+            <label>ID único (slug) *</label>
+            <input type="text" id="af-id" placeholder="Ex: igreja-ns-paz" required />
+            <span class="admin-hint">Sem espaços, apenas letras e hífens</span>
+          </div>
+          <div class="admin-row">
+            <div class="admin-field">
+              <label>Categoria *</label>
+              <select id="af-cat">
+                <option value="historico">🏛️ Histórico</option>
+                <option value="cultural">🎭 Cultural</option>
+                <option value="natural">🌿 Natural</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label>Ano de fundação</label>
+              <input type="text" id="af-fundado" placeholder="Ex: 1887" />
+            </div>
+          </div>
+          <div class="admin-field">
+            <label>Estilo arquitetônico</label>
+            <input type="text" id="af-estilo" placeholder="Ex: Barroco Paulista" />
+          </div>
+
+          <div class="admin-section-title">Localização</div>
+
+          <div class="admin-field">
+            <label>Endereço completo *</label>
+            <input type="text" id="af-end" placeholder="Ex: Rua XV de Novembro, 100 — Centro" required />
+          </div>
+          <div class="admin-row">
+            <div class="admin-field">
+              <label>Latitude *</label>
+              <input type="number" id="af-lat" step="any" placeholder="-23.1800" required />
+            </div>
+            <div class="admin-field">
+              <label>Longitude *</label>
+              <input type="number" id="af-lng" step="any" placeholder="-45.8850" required />
+            </div>
+          </div>
+          <button type="button" class="btn-locate-map" onclick="getMyCoords()">📍 Usar minha localização atual</button>
+
+          <div class="admin-section-title">Imagens</div>
+
+          <div class="admin-field">
+            <label>Imagem principal — envie um arquivo <span style="font-weight:400;opacity:.7">(ou cole uma URL abaixo)</span></label>
+            <label class="upload-btn" for="af-img-file">📷 Escolher foto</label>
+            <input type="file" id="af-img-file" accept="image/*" style="display:none" onchange="handleImgUpload(this,'af-img','prev-img')" />
+            <div class="upload-filename" id="af-img-fname"></div>
+            <input type="url" id="af-img" placeholder="https://... (opcional se enviar foto acima)" oninput="previewImg('af-img','prev-img')" />
+            <div class="img-preview-wrap"><img id="prev-img" src="" alt="" class="img-preview hidden" /></div>
+          </div>
+          <div class="admin-field">
+            <label>Imagem "depois" (comparação) — envie um arquivo <span style="font-weight:400;opacity:.7">(ou cole uma URL abaixo)</span></label>
+            <label class="upload-btn" for="af-imgafter-file">📷 Escolher foto</label>
+            <input type="file" id="af-imgafter-file" accept="image/*" style="display:none" onchange="handleImgUpload(this,'af-imgafter','prev-imgafter')" />
+            <div class="upload-filename" id="af-imgafter-fname"></div>
+            <input type="url" id="af-imgafter" placeholder="https://... (opcional)" oninput="previewImg('af-imgafter','prev-imgafter')" />
+            <div class="img-preview-wrap"><img id="prev-imgafter" src="" alt="" class="img-preview hidden" /></div>
+          </div>
+
+          <div class="admin-section-title">Descrição</div>
+
+          <div class="admin-field">
+            <label>Texto descritivo *</label>
+            <textarea id="af-desc" rows="4" placeholder="Descreva a história e importância deste patrimônio..." required></textarea>
+          </div>
+          <div class="admin-field">
+            <label>Texto da comparação (antes/depois)</label>
+            <textarea id="af-comparedesc" rows="3" placeholder="Descreva a intervenção proposta..."></textarea>
+          </div>
+
+          <div class="admin-section-title">Estado de Conservação</div>
+
+          <div class="admin-field">
+            <label>Índice geral (0–100)</label>
+            <div class="conserv-wrap">
+              <input type="range" id="af-conserv" min="0" max="100" value="70" oninput="updateConservLabel(this.value)" />
+              <span class="conserv-label" id="conserv-label">70%</span>
+            </div>
+          </div>
+
+          <div class="admin-field">
+            <label>Itens de estado (máximo 4)</label>
+            <div class="estado-inputs" id="estadoInputs">
+              <div class="estado-input-row">
+                <select class="estado-dot-sel"><option value="green">🟢</option><option value="yellow">🟡</option><option value="red">🔴</option></select>
+                <input type="text" placeholder="Ex: Estrutura: Boa" class="estado-label-inp" />
+                <button type="button" class="btn-rm-estado" onclick="removeEstado(this)">✕</button>
+              </div>
+            </div>
+            <button type="button" class="btn-add-estado" onclick="addEstadoRow()">+ Adicionar item</button>
+          </div>
+
+          <div class="admin-section-title">Simulações</div>
+
+          <div class="admin-field">
+            <label>Opções de simulação (separadas por vírgula)</label>
+            <input type="text" id="af-sims" placeholder="Ex: Restaurar fachada, Pintura histórica, Conservação geral" />
+          </div>
+          <div class="admin-field">
+            <label>Tags de resultado (separadas por vírgula)</label>
+            <input type="text" id="af-simtags" placeholder="Ex: 🔵 Melhoria na fachada, ✅ Restauro concluído" />
+          </div>
+
+          <div class="admin-field">
+            <label>
+              <input type="checkbox" id="af-destaque" style="margin-right:6px" />
+              Marcar como Destaque
+            </label>
+          </div>
+
+          <div id="admin-form-msg" class="admin-msg hidden"></div>
+
+          <button type="button" class="btn-salvar-admin" onclick="salvarPatrimonio()">
+            <span id="btn-salvar-txt">💾 Salvar no Firebase</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- TAB: Lista cadastrados -->
+      <div id="admin-tab-lista" class="admin-tab-content">
+        <div id="admin-list-wrap">
+          <div class="admin-list-empty">Carregando...</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- ── TELA PERFIL ── -->
   <section id="screen-perfil" class="screen">
     <header class="page-header">
@@ -169,6 +338,10 @@
     <button class="nav-item" onclick="goTo('perfil',this)">
       <span class="nav-icon">👤</span>
       <span class="nav-label">Perfil</span>
+    </button>
+    <button class="nav-item hidden" id="nav-admin-btn" onclick="goTo('admin',this)">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Admin</span>
     </button>
   </nav>
 
@@ -250,10 +423,12 @@
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, query, where }
+  import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, query, where, getDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-  // ── Firebase config (demo — substitua pelas suas credenciais) ──
+  // ── Firebase config ──
   const firebaseConfig = {
     apiKey: "AIzaSyAhqfWRslnwWzIcCTalrg30GDZ00irxWjk",
     authDomain: "rememoria-5fdb8.firebaseapp.com",
@@ -269,7 +444,10 @@
     const fbApp = initializeApp(firebaseConfig);
     db = getFirestore(fbApp);
     window._db = db;
-    window._fbModules = { collection, getDocs, addDoc, deleteDoc, doc, setDoc, query, where };
+    window._fbModules = { collection, getDocs, addDoc, deleteDoc, doc, setDoc, query, where, getDoc };
+    const storage = getStorage(fbApp);
+    window._storage = storage;
+    window._storageModules = { ref, uploadBytes, getDownloadURL };
   } catch(e) {
     console.warn("Firebase init skipped (demo mode):", e.message);
   }
@@ -280,6 +458,87 @@
 
 <!-- App JS -->
 <script src="app.js"></script>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL LOGIN ADMIN
+══════════════════════════════════════════ -->
+<div id="loginOverlay" class="modal-overlay hidden" onclick="closeLoginModal(event)">
+  <div class="login-sheet" id="loginSheet">
+    <div class="modal-handle"></div>
+    <div class="login-header">
+      <div class="login-icon">🔐</div>
+      <h2 class="login-title">Área Restrita</h2>
+      <p class="login-sub" id="loginSubtitle">Acesso exclusivo para administradores</p>
+    </div>
+
+    <div id="loginFormWrap" class="login-body">
+      <div class="login-field">
+        <label>Usuário</label>
+        <input type="text" id="loginUser" placeholder="Seu usuário" autocomplete="off" autocapitalize="none"
+          onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()" />
+      </div>
+      <div class="login-field">
+        <label>Senha</label>
+        <div class="login-pass-wrap">
+          <input type="password" id="loginPass" placeholder="Sua senha" autocomplete="off"
+            onkeydown="if(event.key==='Enter')doLogin()" />
+          <button class="btn-toggle-pass" onclick="togglePass('loginPass',this)" type="button">👁️</button>
+        </div>
+      </div>
+      <div id="loginMsg" class="login-msg hidden"></div>
+      <button class="btn-login" onclick="doLogin()">
+        <span id="loginBtnTxt">Entrar</span>
+      </button>
+      <button class="btn-login-cancel" onclick="closeLoginModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL GERENCIAR ADMINS (Master only)
+══════════════════════════════════════════ -->
+<div id="adminMgrOverlay" class="modal-overlay hidden" onclick="closeAdminMgr(event)">
+  <div class="adminmgr-sheet">
+    <div class="modal-handle"></div>
+    <div class="adminmgr-header">
+      <h3>👑 Gerenciar Administradores</h3>
+      <p class="adminmgr-sub">Sessão master ativa</p>
+    </div>
+
+    <!-- Criar novo admin -->
+    <div class="adminmgr-section">
+      <div class="adminmgr-section-title">Criar novo administrador</div>
+      <div class="adminmgr-field">
+        <label>Usuário</label>
+        <input type="text" id="newAdminUser" placeholder="nome_do_admin" autocomplete="off" autocapitalize="none" />
+      </div>
+      <div class="adminmgr-field">
+        <label>Senha</label>
+        <div class="login-pass-wrap">
+          <input type="password" id="newAdminPass" placeholder="Senha forte" autocomplete="off" />
+          <button class="btn-toggle-pass" onclick="togglePass('newAdminPass',this)" type="button">👁️</button>
+        </div>
+      </div>
+      <div class="adminmgr-field">
+        <label>Nome de exibição</label>
+        <input type="text" id="newAdminDisplay" placeholder="Ex: João Silva" autocomplete="off" />
+      </div>
+      <div id="adminMgrMsg" class="login-msg hidden"></div>
+      <button class="btn-criar-admin" onclick="criarAdmin()">➕ Criar administrador</button>
+    </div>
+
+    <!-- Lista de admins -->
+    <div class="adminmgr-section">
+      <div class="adminmgr-section-title">Administradores cadastrados</div>
+      <div id="adminMgrList" class="adminmgr-list">
+        <div class="adminmgr-loading">Carregando...</div>
+      </div>
+    </div>
+
+    <button class="btn-fechar-mgr" onclick="closeAdminMgr()">Fechar</button>
+  </div>
+</div>
 
 </body>
 </html>

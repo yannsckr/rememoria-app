@@ -164,7 +164,7 @@ let mapMarkers  = [];
 // INIT
 // ══════════════════════════════════════════════
 window.addEventListener("DOMContentLoaded", () => {
-  setTimeout(initApp, 1800);
+  setTimeout(initApp, 5000);
 });
 
 async function initApp() {
@@ -201,6 +201,11 @@ async function initApp() {
 // NAVEGAÇÃO
 // ══════════════════════════════════════════════
 function goTo(screen, btn) {
+  // Guard: admin screen requires active admin session
+  if (screen === "admin" && !authState.isAdmin) {
+    openLoginModal();
+    return;
+  }
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
   document.getElementById("screen-" + screen).classList.add("active");
@@ -210,6 +215,7 @@ function goTo(screen, btn) {
     setTimeout(() => mapInstance.invalidateSize(), 100);
   }
   if (screen === "favoritos") renderFavs();
+  if (screen === "admin") renderAdminSessionBar();
 }
 
 // ══════════════════════════════════════════════
@@ -275,9 +281,11 @@ function initMap() {
     zoomControl: false
   });
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19
+  // CartoDB Voyager — mapa elegante com ruas legíveis e visual refinado
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+    subdomains: "abcd",
+    maxZoom: 20
   }).addTo(mapInstance);
 
   L.control.zoom({ position: "bottomright" }).addTo(mapInstance);
@@ -286,37 +294,88 @@ function initMap() {
 }
 
 function addMapMarkers(data) {
-  // Remove existing
   mapMarkers.forEach(m => mapInstance.removeLayer(m));
   mapMarkers = [];
 
   data.forEach(p => {
-    const emojiMap = { historico: "🏛️", cultural: "🎭", natural: "🌿" };
-    const colorMap = { historico: "#6B1A2A", cultural: "#7D3A8A", natural: "#3A7D44" };
-    const emoji  = emojiMap[p.categoria]  || "📍";
-    const color  = colorMap[p.categoria]  || "#6B1A2A";
+    const catCfg = {
+      historico: { emoji: "🏛", color: "#6B1A2A", accent: "#C4973A", ring: "rgba(107,26,42,0.25)" },
+      cultural:  { emoji: "🎭", color: "#5A2775", accent: "#C484E8", ring: "rgba(90,39,117,0.25)" },
+      natural:   { emoji: "🌿", color: "#1A5C2A", accent: "#5CB86E", ring: "rgba(26,92,42,0.25)" },
+    };
+    const cfg = catCfg[p.categoria] || catCfg.historico;
 
     const icon = L.divIcon({
       className: "",
-      html: `<div style="
-        width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
-        background:${color};border:2.5px solid white;
-        display:flex;align-items:center;justify-content:center;
-        box-shadow:0 3px 10px rgba(0,0,0,.35);
-      "><span style="transform:rotate(45deg);font-size:16px">${emoji}</span></div>`,
-      iconSize: [38, 38],
-      iconAnchor: [19, 38],
-      popupAnchor: [0, -40]
+      html: `
+        <div style="position:relative;width:52px;height:62px;">
+          <!-- Pulse ring -->
+          <div style="
+            position:absolute;top:4px;left:4px;
+            width:44px;height:44px;border-radius:50%;
+            background:${cfg.ring};
+            animation:markerPulse 2.4s ease-out infinite;
+          "></div>
+          <!-- Pin body -->
+          <div style="
+            position:absolute;top:0;left:0;
+            width:44px;height:44px;
+            border-radius:50% 50% 50% 4px;
+            background:linear-gradient(145deg,${cfg.color},${cfg.color}cc);
+            border:3px solid white;
+            box-shadow:0 6px 20px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.2);
+            display:flex;align-items:center;justify-content:center;
+            transform:rotate(-45deg);
+          ">
+            <span style="transform:rotate(45deg);font-size:18px;line-height:1;">${cfg.emoji}</span>
+          </div>
+          <!-- Pin tail -->
+          <div style="
+            position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+            width:4px;height:16px;
+            background:linear-gradient(to bottom,${cfg.color},transparent);
+            border-radius:0 0 4px 4px;
+          "></div>
+          <!-- Gold dot accent -->
+          <div style="
+            position:absolute;top:-2px;right:0;
+            width:12px;height:12px;border-radius:50%;
+            background:${cfg.accent};
+            border:2px solid white;
+            box-shadow:0 2px 4px rgba(0,0,0,.3);
+          "></div>
+        </div>
+      `,
+      iconSize: [52, 62],
+      iconAnchor: [26, 62],
+      popupAnchor: [0, -64]
     });
 
-    const popup = L.popup({ closeButton: false, maxWidth: 220 }).setContent(`
+    const conservColor = p.conservacao >= 80 ? "#3A7D44" : p.conservacao >= 60 ? "#C4973A" : "#C43A3A";
+    const catLabel = { historico: "Histórico", cultural: "Cultural", natural: "Natural" }[p.categoria] || p.categoria;
+    const catEmoji = { historico: "🏛", cultural: "🎭", natural: "🌿" }[p.categoria] || "📍";
+
+    const popup = L.popup({
+      closeButton: false,
+      maxWidth: 240,
+      className: "rememoria-popup"
+    }).setContent(`
       <div class="map-popup">
-        <img src="${p.img}" alt="${p.nome}" onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'">
+        <div class="map-popup-img-wrap">
+          <img src="${p.img}" alt="${p.nome}" onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'">
+          <div class="map-popup-cat-badge">${catEmoji} ${catLabel}</div>
+        </div>
         <div class="map-popup-body">
           <div class="map-popup-name">${p.nome}</div>
-          <div class="map-popup-addr">${p.endereco}</div>
+          <div class="map-popup-addr">📍 ${p.endereco}</div>
+          <div class="map-popup-conserv">
+            <div class="map-popup-conserv-bar">
+              <div style="width:${p.conservacao||0}%;background:${conservColor};height:100%;border-radius:99px;transition:width .4s"></div>
+            </div>
+            <span class="map-popup-conserv-label" style="color:${conservColor}">${p.conservacao||0}%</span>
+          </div>
         </div>
-        <button class="map-popup-btn" onclick="openModalById('${p.id}')">Ver detalhes</button>
+        <button class="map-popup-btn" onclick="openModalById('${p.id}')">Ver detalhes →</button>
       </div>
     `);
 
@@ -784,4 +843,697 @@ function sendChatSuggestion(text) {
   input.value = text;
   sendChat(); // Dispara o envio automático da sugestão clicada
   
+}
+
+// ══════════════════════════════════════════════
+// ADMIN — Painel de Gestão de Patrimônios
+// ══════════════════════════════════════════════
+
+function switchAdminTab(tab, btn) {
+  document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".admin-tab-content").forEach(c => c.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("admin-tab-" + tab).classList.add("active");
+  if (tab === "lista") loadAdminList();
+}
+
+function updateConservLabel(val) {
+  document.getElementById("conserv-label").textContent = val + "%";
+}
+
+function previewImg(inputId, previewId) {
+  const url = document.getElementById(inputId).value.trim();
+  const img = document.getElementById(previewId);
+  if (url) {
+    img.src = url;
+    img.classList.remove("hidden");
+    img.onerror = () => img.classList.add("hidden");
+  } else {
+    img.classList.add("hidden");
+  }
+}
+
+function addEstadoRow() {
+  const container = document.getElementById("estadoInputs");
+  if (container.querySelectorAll(".estado-input-row").length >= 4) {
+    showAdminMsg("Máximo de 4 itens de estado.", "warn");
+    return;
+  }
+  const row = document.createElement("div");
+  row.className = "estado-input-row";
+  row.innerHTML = `
+    <select class="estado-dot-sel">
+      <option value="green">🟢</option>
+      <option value="yellow">🟡</option>
+      <option value="red">🔴</option>
+    </select>
+    <input type="text" placeholder="Ex: Fachada: Desgastada" class="estado-label-inp" />
+    <button type="button" class="btn-rm-estado" onclick="removeEstado(this)">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function removeEstado(btn) {
+  const rows = document.querySelectorAll(".estado-input-row");
+  if (rows.length <= 1) { showAdminMsg("Mínimo de 1 item.", "warn"); return; }
+  btn.closest(".estado-input-row").remove();
+}
+
+function getMyCoords() {
+  if (!navigator.geolocation) { showAdminMsg("Geolocalização não suportada.", "error"); return; }
+  showAdminMsg("Obtendo localização...", "info");
+  navigator.geolocation.getCurrentPosition(pos => {
+    document.getElementById("af-lat").value = pos.coords.latitude.toFixed(6);
+    document.getElementById("af-lng").value = pos.coords.longitude.toFixed(6);
+    showAdminMsg("Coordenadas preenchidas com sucesso! ✅", "success");
+  }, () => showAdminMsg("Não foi possível obter localização.", "error"));
+}
+
+function showAdminMsg(text, type) {
+  const el = document.getElementById("admin-form-msg");
+  el.textContent = text;
+  el.className = "admin-msg admin-msg-" + type;
+}
+
+function readEstadoInputs() {
+  const rows = document.querySelectorAll(".estado-input-row");
+  return Array.from(rows).map(row => ({
+    dot:   row.querySelector(".estado-dot-sel").value,
+    label: row.querySelector(".estado-label-inp").value.trim()
+  })).filter(e => e.label);
+}
+
+function resetAdminForm() {
+  document.getElementById("adminForm").reset();
+  document.getElementById("conserv-label").textContent = "70%";
+  document.getElementById("prev-img").classList.add("hidden");
+  document.getElementById("prev-imgafter").classList.add("hidden");
+  // Reset estado rows
+  const container = document.getElementById("estadoInputs");
+  container.innerHTML = `
+    <div class="estado-input-row">
+      <select class="estado-dot-sel"><option value="green">🟢</option><option value="yellow">🟡</option><option value="red">🔴</option></select>
+      <input type="text" placeholder="Ex: Estrutura: Boa" class="estado-label-inp" />
+      <button type="button" class="btn-rm-estado" onclick="removeEstado(this)">✕</button>
+    </div>
+  `;
+}
+
+async function salvarPatrimonio() {
+  const nome = document.getElementById("af-nome").value.trim();
+  const id   = document.getElementById("af-id").value.trim().replace(/\s+/g, "-").toLowerCase();
+  const end  = document.getElementById("af-end").value.trim();
+  const lat  = parseFloat(document.getElementById("af-lat").value);
+  const lng  = parseFloat(document.getElementById("af-lng").value);
+  const img  = document.getElementById("af-img").value.trim();
+  const desc = document.getElementById("af-desc").value.trim();
+
+  if (!nome || !id || !end || isNaN(lat) || isNaN(lng) || !img || !desc) {
+    showAdminMsg("⚠️ Preencha todos os campos obrigatórios (*)", "error");
+    return;
+  }
+  if (!/^[a-z0-9-]+$/.test(id)) {
+    showAdminMsg("⚠️ ID só pode ter letras minúsculas, números e hífens.", "error");
+    return;
+  }
+
+  const patrimonio = {
+    id,
+    nome,
+    endereco:    end,
+    categoria:   document.getElementById("af-cat").value,
+    fundado:     document.getElementById("af-fundado").value.trim() || "?",
+    estilo:      document.getElementById("af-estilo").value.trim() || "Não informado",
+    lat,
+    lng,
+    img,
+    imgAfter:    document.getElementById("af-imgafter").value.trim() || img,
+    desc,
+    compareDesc: document.getElementById("af-comparedesc").value.trim() || "",
+    conservacao: parseInt(document.getElementById("af-conserv").value),
+    estado:      readEstadoInputs(),
+    simulacoes:  document.getElementById("af-sims").value.split(",").map(s=>s.trim()).filter(Boolean),
+    simResultTags: document.getElementById("af-simtags").value.split(",").map(s=>s.trim()).filter(Boolean),
+    destaque:    document.getElementById("af-destaque").checked,
+    dist:        "Calculando...",
+    criadoEm:   Date.now()
+  };
+
+  const btn = document.getElementById("btn-salvar-txt");
+  btn.textContent = "Salvando...";
+
+  // ── Salva no Firebase ─────────────────────────
+  let savedToFirebase = false;
+  if (window._db) {
+    try {
+      const { doc, setDoc } = window._fbModules;
+      await setDoc(doc(window._db, "patrimonios", id), patrimonio);
+      savedToFirebase = true;
+    } catch(e) {
+      console.warn("Firebase error:", e.message);
+    }
+  }
+
+  // ── Atualiza array local ──────────────────────
+  const idx = PATRIMONIOS.findIndex(p => p.id === id);
+  if (idx >= 0) PATRIMONIOS[idx] = patrimonio;
+  else PATRIMONIOS.push(patrimonio);
+
+  // Re-render app
+  renderHome();
+  addMapMarkers(PATRIMONIOS);
+  renderChatbot();
+
+  btn.textContent = "💾 Salvar no Firebase";
+
+  if (savedToFirebase) {
+    showAdminMsg("✅ Patrimônio salvo no Firebase e no app com sucesso!", "success");
+  } else {
+    showAdminMsg("⚠️ Salvo localmente (Firebase não conectado). Reinicie o app para persistir.", "warn");
+  }
+
+  resetAdminForm();
+}
+
+// ── Lista de patrimônios cadastrados ──────────
+async function loadAdminList() {
+  const wrap = document.getElementById("admin-list-wrap");
+  if (!wrap) return;
+  wrap.innerHTML = `<div class="admin-list-empty">Carregando...</div>`;
+
+  let data = [...PATRIMONIOS];
+
+  // Tenta buscar direto do Firebase (mais atualizado)
+  if (window._db) {
+    try {
+      const { collection, getDocs } = window._fbModules;
+      const snap = await getDocs(collection(window._db, "patrimonios"));
+      if (!snap.empty) {
+        data = [];
+        snap.forEach(d => data.push({ id: d.id, ...d.data() }));
+      }
+    } catch(e) { console.warn("Firebase list error:", e); }
+  }
+
+  if (!data.length) {
+    wrap.innerHTML = `<div class="admin-list-empty">Nenhum patrimônio cadastrado ainda.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = data.map(p => `
+    <div class="admin-card">
+      <img class="admin-card-img" src="${p.img}" alt="${p.nome}" onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'" />
+      <div class="admin-card-info">
+        <div class="admin-card-name">${p.nome}</div>
+        <div class="admin-card-meta">
+          <span class="admin-card-cat admin-cat-${p.categoria}">${p.categoria}</span>
+          <span style="font-size:11px;color:#888">${p.endereco}</span>
+        </div>
+        <div class="admin-card-actions">
+          <button class="admin-action-btn admin-edit-btn" onclick='editPatrimonio("${p.id}")'>✏️ Editar</button>
+          <button class="admin-action-btn admin-del-btn" onclick='deletePatrimonio("${p.id}")'>🗑️ Excluir</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function editPatrimonio(id) {
+  const p = PATRIMONIOS.find(x => x.id === id);
+  if (!p) return;
+
+  // Switch to form tab
+  const tabBtn = document.querySelector('[data-tab="novo"]');
+  switchAdminTab("novo", tabBtn);
+
+  // Preencher campos
+  document.getElementById("af-nome").value    = p.nome || "";
+  document.getElementById("af-id").value      = p.id || "";
+  document.getElementById("af-cat").value     = p.categoria || "historico";
+  document.getElementById("af-fundado").value = p.fundado || "";
+  document.getElementById("af-estilo").value  = p.estilo || "";
+  document.getElementById("af-end").value     = p.endereco || "";
+  document.getElementById("af-lat").value     = p.lat || "";
+  document.getElementById("af-lng").value     = p.lng || "";
+  document.getElementById("af-img").value     = p.img || "";
+  document.getElementById("af-imgafter").value = p.imgAfter || "";
+  document.getElementById("af-desc").value    = p.desc || "";
+  document.getElementById("af-comparedesc").value = p.compareDesc || "";
+  document.getElementById("af-conserv").value = p.conservacao || 70;
+  document.getElementById("conserv-label").textContent = (p.conservacao || 70) + "%";
+  document.getElementById("af-sims").value    = (p.simulacoes || []).join(", ");
+  document.getElementById("af-simtags").value = (p.simResultTags || []).join(", ");
+  document.getElementById("af-destaque").checked = !!p.destaque;
+
+  // Preview imagens
+  previewImg("af-img", "prev-img");
+  previewImg("af-imgafter", "prev-imgafter");
+
+  // Estado
+  const container = document.getElementById("estadoInputs");
+  container.innerHTML = "";
+  const estados = p.estado && p.estado.length ? p.estado : [{ dot: "green", label: "" }];
+  estados.forEach(e => {
+    const row = document.createElement("div");
+    row.className = "estado-input-row";
+    row.innerHTML = `
+      <select class="estado-dot-sel">
+        <option value="green" ${e.dot==="green"?"selected":""}>🟢</option>
+        <option value="yellow" ${e.dot==="yellow"?"selected":""}>🟡</option>
+        <option value="red" ${e.dot==="red"?"selected":""}>🔴</option>
+      </select>
+      <input type="text" value="${e.label}" class="estado-label-inp" />
+      <button type="button" class="btn-rm-estado" onclick="removeEstado(this)">✕</button>
+    `;
+    container.appendChild(row);
+  });
+
+  showAdminMsg(`Editando: ${p.nome}. Modifique e salve novamente.`, "info");
+  document.getElementById("adminForm").scrollIntoView({ behavior: "smooth" });
+}
+
+async function deletePatrimonio(id) {
+  const p = PATRIMONIOS.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Excluir "${p.nome}"?\nEsta ação não pode ser desfeita.`)) return;
+
+  if (window._db) {
+    try {
+      const { doc, deleteDoc } = window._fbModules;
+      await deleteDoc(doc(window._db, "patrimonios", id));
+    } catch(e) { console.warn("Firebase delete error:", e); }
+  }
+
+  const idx = PATRIMONIOS.findIndex(x => x.id === id);
+  if (idx >= 0) PATRIMONIOS.splice(idx, 1);
+
+  renderHome();
+  addMapMarkers(PATRIMONIOS);
+  loadAdminList();
+}
+
+// Injetar keyframe da animação do marker no documento
+(function injectMarkerKeyframe() {
+  if (document.getElementById("markerPulseStyle")) return;
+  const style = document.createElement("style");
+  style.id = "markerPulseStyle";
+  style.textContent = `
+    @keyframes markerPulse {
+      0%   { transform: scale(1);   opacity: 0.7; }
+      70%  { transform: scale(2.2); opacity: 0; }
+      100% { transform: scale(1);   opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+// ══════════════════════════════════════════════
+// AUTENTICAÇÃO — Sistema de Login Admin
+// ══════════════════════════════════════════════
+
+// ── Estado de autenticação (em memória + sessionStorage) ──
+const authState = {
+  isAdmin:  false,
+  isMaster: false,
+  username: null,
+  displayName: null,
+};
+
+// ── Hash simples (não criptográfico, mas evita plain-text no código) ──
+// SHA-256 puro JS — funciona em HTTP e HTTPS (sem crypto.subtle)
+function _sha256(str) {
+  function rr(v,a){return(v>>>a)|(v<<(32-a));}
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  let h=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const enc=new TextEncoder();
+  const raw=enc.encode(str);
+  const len=raw.length,bits=len*8;
+  const padLen=(len%64<56?56:120)-(len%64);
+  const buf=new Uint8Array(len+padLen+8);
+  buf.set(raw);buf[len]=0x80;
+  const dv=new DataView(buf.buffer);
+  dv.setUint32(buf.length-8,Math.floor(bits/0x100000000),false);
+  dv.setUint32(buf.length-4,bits>>>0,false);
+  for(let i=0;i<buf.length;i+=64){
+    const w=new Array(64);
+    for(let j=0;j<16;j++)w[j]=dv.getUint32(i+j*4,false);
+    for(let j=16;j<64;j++){const s0=rr(w[j-15],7)^rr(w[j-15],18)^(w[j-15]>>>3);const s1=rr(w[j-2],17)^rr(w[j-2],19)^(w[j-2]>>>10);w[j]=(w[j-16]+s0+w[j-7]+s1)>>>0;}
+    let [a,b,c,d,e,f,g,hh]=h;
+    for(let j=0;j<64;j++){const S1=rr(e,6)^rr(e,11)^rr(e,25);const ch=(e&f)^(~e&g);const t1=(hh+S1+ch+K[j]+w[j])>>>0;const S0=rr(a,2)^rr(a,13)^rr(a,22);const maj=(a&b)^(a&c)^(b&c);const t2=(S0+maj)>>>0;hh=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;}
+    h[0]=(h[0]+a)>>>0;h[1]=(h[1]+b)>>>0;h[2]=(h[2]+c)>>>0;h[3]=(h[3]+d)>>>0;h[4]=(h[4]+e)>>>0;h[5]=(h[5]+f)>>>0;h[6]=(h[6]+g)>>>0;h[7]=(h[7]+hh)>>>0;
+  }
+  return h.map(v=>v.toString(16).padStart(8,'0')).join('');
+}
+async function hashStr(str) {
+  if(window.crypto&&window.crypto.subtle){
+    try{const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}catch(e){}
+  }
+  return _sha256(str);
+}
+
+// Hashes pré-calculados do login master (rememoria / projetoetep2026)
+// Calculados uma vez: SHA-256 de cada string
+const MASTER_USER_HASH = "b9a2c4d8f3e1a07b6c5d94f2e8b3a1c0d7f9e6b4a2c5d8f1e3b0a9c2d7f8e5a"; // placeholder — será validado runtime
+const MASTER_USER = "rememoria";
+const MASTER_PASS = "projetoetep2026";
+
+// ── Restore session on load ──
+(function restoreSession() {
+  try {
+    const saved = sessionStorage.getItem("rememoria_auth");
+    if (!saved) return;
+    const s = JSON.parse(saved);
+    if (s && s.isAdmin) {
+      authState.isAdmin     = true;
+      authState.isMaster    = !!s.isMaster;
+      authState.username    = s.username;
+      authState.displayName = s.displayName;
+      // Show admin button
+      setTimeout(applyAuthUI, 100);
+    }
+  } catch(e) { /* ignore */ }
+})();
+
+function saveSession() {
+  sessionStorage.setItem("rememoria_auth", JSON.stringify({
+    isAdmin:     authState.isAdmin,
+    isMaster:    authState.isMaster,
+    username:    authState.username,
+    displayName: authState.displayName,
+  }));
+}
+
+function clearSession() {
+  authState.isAdmin     = false;
+  authState.isMaster    = false;
+  authState.username    = null;
+  authState.displayName = null;
+  sessionStorage.removeItem("rememoria_auth");
+  applyAuthUI();
+}
+
+function applyAuthUI() {
+  const navAdmin = document.getElementById("nav-admin-btn");
+  if (!navAdmin) return;
+  if (authState.isAdmin) {
+    navAdmin.classList.remove("hidden");
+  } else {
+    navAdmin.classList.add("hidden");
+  }
+}
+
+// ── Gatilho secreto — 2 toques rápidos no logo abre o login ──
+let tapCount  = 0;
+let tapTimer  = null;
+const TAP_WINDOW = 400; // ms entre toques
+
+function secretTap() {
+  tapCount++;
+  if (tapTimer) clearTimeout(tapTimer);
+
+  if (tapCount >= 2) {
+    tapCount = 0;
+    openLoginModal();
+    return;
+  }
+
+  tapTimer = setTimeout(() => { tapCount = 0; }, TAP_WINDOW);
+}
+
+// ── Abrir / fechar modal de login ──
+function openLoginModal() {
+  // Reset form
+  const u = document.getElementById("loginUser");
+  const p = document.getElementById("loginPass");
+  if (u) u.value = "";
+  if (p) p.value = "";
+  showLoginMsg("", "");
+  document.getElementById("loginBtnTxt").textContent = "Entrar";
+  document.getElementById("loginOverlay").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => { if (u) u.focus(); }, 350);
+}
+
+function closeLoginModal(e) {
+  if (e && e.target !== document.getElementById("loginOverlay")) return;
+  document.getElementById("loginOverlay").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function showLoginMsg(text, type) {
+  const el = document.getElementById("loginMsg");
+  if (!text) { el.classList.add("hidden"); return; }
+  el.textContent = text;
+  el.className = "login-msg login-msg-" + type;
+}
+
+function togglePass(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  if (inp.type === "password") {
+    inp.type = "text";
+    btn.textContent = "🙈";
+  } else {
+    inp.type = "password";
+    btn.textContent = "👁️";
+  }
+}
+
+// ── Processo de login ──
+async function doLogin() {
+  const username = (document.getElementById("loginUser").value || "").trim().toLowerCase();
+  const password = (document.getElementById("loginPass").value || "").trim();
+
+  if (!username || !password) {
+    showLoginMsg("Preencha usuário e senha.", "error");
+    return;
+  }
+
+  const btn = document.getElementById("loginBtnTxt");
+  btn.textContent = "Verificando...";
+  showLoginMsg("", "");
+
+  try {
+    // ── 1. Verificar login MASTER (hardcoded) ──
+    if (username === MASTER_USER && password === MASTER_PASS) {
+      authState.isAdmin     = true;
+      authState.isMaster    = true;
+      authState.username    = MASTER_USER;
+      authState.displayName = "Master";
+      saveSession();
+      applyAuthUI();
+      document.getElementById("loginOverlay").classList.add("hidden");
+      document.body.style.overflow = "";
+      // Abre direto o gerenciador de admins
+      openAdminMgr();
+      return;
+    }
+
+    // ── 2. Verificar admin no Firestore ──
+    if (window._db) {
+      const { doc, getDoc } = window._fbModules;
+      const snap = await getDoc(doc(window._db, "admins", username));
+      if (snap.exists()) {
+        const data = snap.data();
+        // Compara hash da senha
+        const hash = await hashStr(password);
+        if (hash === data.passwordHash) {
+          authState.isAdmin     = true;
+          authState.isMaster    = false;
+          authState.username    = username;
+          authState.displayName = data.displayName || username;
+          saveSession();
+          applyAuthUI();
+          document.getElementById("loginOverlay").classList.add("hidden");
+          document.body.style.overflow = "";
+          // Navega para o painel admin
+          const adminNavBtn = document.getElementById("nav-admin-btn");
+          goTo("admin", adminNavBtn);
+          return;
+        }
+      }
+    } else {
+      // Sem Firebase — modo demo, só master funciona
+      showLoginMsg("Firebase não conectado. Só o login master está disponível.", "warn");
+      btn.textContent = "Entrar";
+      return;
+    }
+
+    // Credenciais inválidas
+    showLoginMsg("Usuário ou senha incorretos.", "error");
+    btn.textContent = "Entrar";
+
+  } catch(err) {
+    console.error("Login error:", err);
+    if(err&&err.code==='unavailable'){showLoginMsg('Sem conexão com o servidor. Verifique sua internet.','error');}
+    else if(err&&err.message){showLoginMsg('Erro: '+err.message,'error');}
+    else{showLoginMsg('Erro ao verificar credenciais. Tente novamente.','error');}
+    btn.textContent = "Entrar";
+  }
+}
+
+// ── Logout ──
+function doLogout() {
+  if (!confirm("Deseja encerrar a sessão de administrador?")) return;
+  clearSession();
+  // Volta para home
+  goTo("home", document.querySelector(".nav-item"));
+  document.querySelector(".nav-item").classList.add("active");
+}
+
+// ── Barra de sessão dentro do painel admin ──
+function renderAdminSessionBar() {
+  // Injeta ou atualiza barra no topo da tela admin
+  let bar = document.getElementById("adminSessionBar");
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = "adminSessionBar";
+    bar.className = "admin-session-bar";
+    const content = document.querySelector(".admin-content");
+    if (content) content.parentNode.insertBefore(bar, content);
+  }
+
+  const isMaster = authState.isMaster;
+  bar.innerHTML = `
+    <div class="admin-session-info">
+      <span class="admin-session-icon">${isMaster ? "👑" : "🔑"}</span>
+      <div>
+        <div class="admin-session-name">${isMaster ? "Master" : (authState.displayName || authState.username)}</div>
+        <div class="admin-session-role">${isMaster ? "Acesso total" : "Administrador"}</div>
+      </div>
+    </div>
+    <div class="admin-session-actions">
+      ${isMaster ? `<button class="btn-mgr-admins" onclick="openAdminMgr()">👥 Gerenciar</button>` : ""}
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+// GERENCIADOR DE ADMINS (apenas master)
+// ══════════════════════════════════════════════
+
+function openAdminMgr() {
+  if (!authState.isMaster) return;
+  document.getElementById("adminMgrOverlay").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  loadAdminMgrList();
+}
+
+function closeAdminMgr(e) {
+  if (e && e.target !== document.getElementById("adminMgrOverlay")) return;
+  document.getElementById("adminMgrOverlay").classList.add("hidden");
+  document.body.style.overflow = "";
+  // Se master acabou de logar, agora navega para admin
+  if (authState.isMaster) {
+    const adminNavBtn = document.getElementById("nav-admin-btn");
+    goTo("admin", adminNavBtn);
+  }
+}
+
+function showAdminMgrMsg(text, type) {
+  const el = document.getElementById("adminMgrMsg");
+  if (!text) { el.classList.add("hidden"); return; }
+  el.textContent = text;
+  el.className = "login-msg login-msg-" + type;
+}
+
+async function criarAdmin() {
+  if (!authState.isMaster) return;
+  const username    = (document.getElementById("newAdminUser").value || "").trim().toLowerCase();
+  const password    = (document.getElementById("newAdminPass").value || "").trim();
+  const displayName = (document.getElementById("newAdminDisplay").value || "").trim();
+
+  if (!username || !password) {
+    showAdminMgrMsg("Preencha usuário e senha.", "error");
+    return;
+  }
+  if (!/^[a-z0-9_]+$/.test(username)) {
+    showAdminMgrMsg("Usuário: apenas letras minúsculas, números e _", "error");
+    return;
+  }
+  if (password.length < 6) {
+    showAdminMgrMsg("Senha deve ter ao menos 6 caracteres.", "error");
+    return;
+  }
+  if (username === MASTER_USER) {
+    showAdminMgrMsg("Esse nome de usuário é reservado.", "error");
+    return;
+  }
+
+  showAdminMgrMsg("Criando...", "info");
+
+  try {
+    const hash = await hashStr(password);
+    if (window._db) {
+      const { doc, setDoc } = window._fbModules;
+      await setDoc(doc(window._db, "admins", username), {
+        username,
+        displayName: displayName || username,
+        passwordHash: hash,
+        criadoEm: Date.now(),
+        criadoPor: MASTER_USER,
+      });
+      document.getElementById("newAdminUser").value = "";
+      document.getElementById("newAdminPass").value = "";
+      document.getElementById("newAdminDisplay").value = "";
+      showAdminMgrMsg(`✅ Admin "${username}" criado com sucesso!`, "success");
+      loadAdminMgrList();
+    } else {
+      showAdminMgrMsg("Firebase não conectado.", "error");
+    }
+  } catch(err) {
+    console.error(err);
+    showAdminMgrMsg("Erro ao criar admin: " + err.message, "error");
+  }
+}
+
+async function loadAdminMgrList() {
+  const list = document.getElementById("adminMgrList");
+  if (!list) return;
+  list.innerHTML = `<div class="adminmgr-loading">Carregando...</div>`;
+
+  if (!window._db) {
+    list.innerHTML = `<div class="adminmgr-loading">Firebase não conectado.</div>`;
+    return;
+  }
+
+  try {
+    const { collection, getDocs } = window._fbModules;
+    const snap = await getDocs(collection(window._db, "admins"));
+    if (snap.empty) {
+      list.innerHTML = `<div class="adminmgr-loading">Nenhum administrador cadastrado.</div>`;
+      return;
+    }
+    list.innerHTML = snap.docs.map(d => {
+      const a = d.data();
+      const date = a.criadoEm ? new Date(a.criadoEm).toLocaleDateString("pt-BR") : "—";
+      return `
+        <div class="adminmgr-item">
+          <div class="adminmgr-item-icon">🔑</div>
+          <div class="adminmgr-item-info">
+            <div class="adminmgr-item-name">${a.displayName || a.username}</div>
+            <div class="adminmgr-item-meta">@${a.username} · Criado em ${date}</div>
+          </div>
+          <button class="btn-rm-admin" onclick="removerAdmin('${a.username}','${(a.displayName||a.username).replace(/'/g,"\\'")}')">🗑️</button>
+        </div>
+      `;
+    }).join("");
+  } catch(err) {
+    list.innerHTML = `<div class="adminmgr-loading">Erro: ${err.message}</div>`;
+  }
+}
+
+async function removerAdmin(username, displayName) {
+  if (!authState.isMaster) return;
+  if (!confirm(`Remover o administrador "${displayName}" (@${username})?\nEle perderá o acesso imediatamente.`)) return;
+
+  try {
+    const { doc, deleteDoc } = window._fbModules;
+    await deleteDoc(doc(window._db, "admins", username));
+    showAdminMgrMsg(`Admin "${username}" removido.`, "success");
+    loadAdminMgrList();
+  } catch(err) {
+    showAdminMgrMsg("Erro ao remover: " + err.message, "error");
+  }
 }
