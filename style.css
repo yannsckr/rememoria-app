@@ -3,163 +3,323 @@
    Paleta: Vinho escuro · Dourado · Creme
 ═══════════════════════════════════════════════ */
 
+/* O seletor :root define variáveis globais (custom properties) que podem ser usadas em todo o arquivo CSS. 
+   Isso facilita a mudança de cores, fontes e tamanhos em um só lugar. */
 :root {
-  --wine:       #6B1A2A;
-  --wine-dark:  #4A0F1E;
-  --wine-mid:   #7D2035;
-  --gold:       #C4973A;
-  --gold-light: #D4A84B;
-  --cream:      #F5F0E8;
-  --cream-dark: #EDE5D5;
-  --text:       #1A0A0F;
-  --text-muted: #6B5A5F;
-  --white:      #FFFFFF;
-  --success:    #3A7D44;
-  --warn:       #C4973A;
-  --danger:     #C43A3A;
+  /* Cores da marca */
+  --wine:       #6B1A2A; /* Vinho principal */
+  --wine-dark:  #4A0F1E; /* Vinho escuro para fundos e cabeçalhos */
+  --wine-mid:   #7D2035; /* Vinho intermediário para gradientes */
+  --gold:       #C4973A; /* Dourado principal para destaques e botões */
+  --gold-light: #D4A84B; /* Dourado claro para efeitos de hover (passar o mouse) */
+  --cream:      #F5F0E8; /* Creme claro para o fundo do aplicativo */
+  --cream-dark: #EDE5D5; /* Creme escuro para bordas e fundos secundários */
+  
+  /* Cores de texto e utilitárias */
+  --text:       #1A0A0F; /* Cor do texto principal (quase preto) */
+  --text-muted: #6B5A5F; /* Cor do texto secundário (cinza escuro/vinho desbotado) */
+  --white:      #FFFFFF; /* Branco puro */
+  
+  /* Cores de feedback (sucesso, aviso, erro) */
+  --success:    #3A7D44; /* Verde para sucesso ou bom estado */
+  --warn:       #C4973A; /* Amarelo/Dourado para avisos ou estado médio */
+  --danger:     #C43A3A; /* Vermelho para erros ou estado ruim */
 
-  --radius:    16px;
-  --radius-sm: 8px;
-  --shadow:    0 4px 24px rgba(74,15,30,.15);
-  --shadow-lg: 0 12px 40px rgba(74,15,30,.25);
+  /* Bordas arredondadas padrão */
+  --radius:    16px; /* Arredondamento maior para cards e modais */
+  --radius-sm: 8px;  /* Arredondamento menor para botões e tags */
+  
+  /* Sombras padrão para dar profundidade aos elementos */
+  --shadow:    0 4px 24px rgba(74,15,30,.15); /* Sombra suave */
+  --shadow-lg: 0 12px 40px rgba(74,15,30,.25); /* Sombra mais forte/larga */
 
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body:    'DM Sans', sans-serif;
+  /* Fontes do projeto */
+  --font-display: 'Cormorant Garamond', Georgia, serif; /* Fonte serifada para títulos elegantes */
+  --font-body:    'DM Sans', sans-serif; /* Fonte sem serifa para textos comuns e legibilidade */
 
-  --nav-h: 72px;
-  --header-h: 0px;
+  /* Alturas padrão */
+  --nav-h: 72px; /* Altura da barra de navegação inferior */
+  --header-h: 0px; /* Altura do cabeçalho (atualmente zerada) */
 }
 
 /* ── Reset ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
-body {
-  font-family: var(--font-body);
-  background: var(--cream);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
+/* Seleciona todos os elementos e pseudo-elementos para aplicar o box-sizing.
+   Isso faz com que o padding e a borda não aumentem o tamanho total do elemento. */
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; /* Zera a margem padrão do navegador */
+  padding: 0; /* Zera o preenchimento padrão do navegador */
 }
-button { cursor: pointer; border: none; background: none; font-family: inherit; }
-img { display: block; max-width: 100%; }
-input { font-family: inherit; }
 
-.hidden { display: none !important; }
+/* Garante que a página ocupe 100% da altura da tela e esconde a rolagem global (a rolagem será feita internamente) */
+html, body { 
+  height: 100%; 
+  overflow: hidden; 
+}
+
+/* Estilos base para a tag <body> */
+body {
+  font-family: var(--font-body); /* Aplica a fonte padrão definida nas variáveis */
+  background: var(--cream); /* Fundo creme */
+  color: var(--text); /* Cor do texto principal */
+  -webkit-font-smoothing: antialiased; /* Suaviza a renderização das fontes no macOS/iOS */
+}
+
+/* Remove estilos padrão de botões HTML para que possam ser estilizados do zero */
+button { 
+  cursor: pointer; /* Muda o cursor para a mãozinha */
+  border: none; 
+  background: none; 
+  font-family: inherit; /* Herda a fonte do elemento pai */
+}
+
+/* Garante que as imagens não ultrapassem a largura do seu contêiner e se comportem como blocos */
+img { 
+  display: block; 
+  max-width: 100%; 
+}
+
+/* Faz com que os campos de input herdem a fonte padrão em vez da fonte padrão de formulários do navegador */
+input { 
+  font-family: inherit; 
+}
+
+/* Classe utilitária para esconder elementos rapidamente usando !important para forçar a regra */
+.hidden { 
+  display: none !important; 
+}
 
 /* ══════════════════════════════════════════════
-   SPLASH
+   SPLASH (Tela de carregamento)
 ══════════════════════════════════════════════ */
 #splash {
-  position: fixed; inset: 0; z-index: 999;
-  background: var(--wine-dark);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; /* Fixa na tela inteira (top, right, bottom, left = 0) */
+  z-index: 999; /* Fica acima de tudo na página */
+  background: var(--wine-dark); /* Fundo vinho escuro */
+  display: flex; align-items: center; justify-content: center; /* Centraliza o conteúdo no meio da tela */
 }
-.splash-inner { text-align: center; animation: splashIn .6s ease both; }
-.splash-icon { font-size: 56px; margin-bottom: 12px; }
+
+/* Anima a entrada do conteúdo do splash (esmaecimento e movimento para cima) */
+.splash-inner { 
+  text-align: center; 
+  animation: splashIn .6s ease both; 
+}
+
+/* Ícone central do splash */
+.splash-icon { 
+  font-size: 56px; 
+  margin-bottom: 12px; 
+}
+
+/* Título principal "ReMemória" no splash */
 .splash-title {
   font-family: var(--font-display);
-  font-size: 42px; color: var(--white);
-  letter-spacing: .04em;
+  font-size: 42px; 
+  color: var(--white);
+  letter-spacing: .04em; /* Espaçamento entre letras */
 }
-.splash-sub { color: var(--gold); font-size: 14px; letter-spacing: .15em; text-transform: uppercase; margin-top: 4px; }
+
+/* Subtítulo abaixo do título */
+.splash-sub { 
+  color: var(--gold); 
+  font-size: 14px; 
+  letter-spacing: .15em; 
+  text-transform: uppercase; /* Deixa tudo em maiúsculas */
+  margin-top: 4px; 
+}
+
+/* Contêiner da barra de carregamento */
 .splash-loader {
   margin-top: 36px;
-  width: 48px; height: 3px; background: rgba(255,255,255,.15);
-  border-radius: 99px; overflow: hidden; margin-inline: auto;
+  width: 48px; 
+  height: 3px; 
+  background: rgba(255,255,255,.15); /* Fundo da barra semi-transparente */
+  border-radius: 99px; /* Bordas totalmente arredondadas */
+  overflow: hidden; /* Corta o que sair da borda */
+  margin-inline: auto; /* Centraliza horizontalmente */
 }
+
+/* A parte que se move dentro da barra de carregamento */
 .splash-loader span {
-  display: block; height: 100%; width: 40%;
-  background: var(--gold);
+  display: block; 
+  height: 100%; 
+  width: 40%; /* Ocupa 40% da largura do contêiner */
+  background: var(--gold); /* Cor dourada */
   border-radius: 99px;
-  animation: loader 1.4s ease-in-out infinite;
+  animation: loader 1.4s ease-in-out infinite; /* Chama a animação 'loader' em loop (infinite) */
 }
+
+/* Keyframes da animação da barra de loading (vai da esquerda para a direita) */
 @keyframes loader {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(350%); }
 }
+
+/* Keyframes da animação de entrada do splash */
 @keyframes splashIn {
-  from { opacity:0; transform: translateY(20px); }
-  to   { opacity:1; transform: none; }
+  from { opacity: 0; transform: translateY(20px); } /* Começa invisível e um pouco abaixo */
+  to   { opacity: 1; transform: none; } /* Termina visível na posição original */
 }
 
 /* ══════════════════════════════════════════════
-   APP SHELL
+   APP SHELL (Estrutura principal do app)
 ══════════════════════════════════════════════ */
 #app {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
+  position: fixed; inset: 0; /* Ocupa toda a tela */
+  display: flex; flex-direction: column; /* Organiza os filhos em uma coluna vertical */
   background: var(--cream);
 }
 
-/* ── SCREENS ── */
+/* ── SCREENS (Telas individuais do app) ── */
 .screen {
-  display: none;
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--nav-h) + 12px);
+  display: none; /* Esconde todas as telas por padrão */
+  flex: 1; /* Ocupa o espaço restante da tela (entre header e footer) */
+  overflow-y: auto; /* Permite rolar a tela verticalmente se o conteúdo for grande */
+  -webkit-overflow-scrolling: touch; /* Melhora a rolagem em dispositivos iOS */
+  padding-bottom: calc(var(--nav-h) + 12px); /* Dá espaço no fundo para a barra de navegação inferior não cobrir o conteúdo */
 }
-.screen.active { display: flex; flex-direction: column; }
+
+/* Mostra apenas a tela que tem a classe 'active' */
+.screen.active { 
+  display: flex; 
+  flex-direction: column; 
+}
 
 /* ══════════════════════════════════════════════
-   HOME HEADER (marca + notificação)
+   HOME HEADER (Cabeçalho da tela inicial)
 ══════════════════════════════════════════════ */
 .home-header {
-  background: linear-gradient(165deg, var(--wine-dark) 0%, var(--wine) 60%, #9B2E45 100%);
-  padding: 52px 20px 20px;
-  position: relative;
-  overflow: hidden;
+  background: #4A0A17; 
+  padding: 80px 20px 30px;
+  position: sticky; /* Trava o cabeçalho no topo */
+  top: 0;
   flex-shrink: 0;
+  z-index: 1; /* Fica na camada do fundo */
 }
+
 .home-header::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 80% 20%, rgba(196,151,58,.18) 0%, transparent 60%);
-  pointer-events: none;
+  display: none; /* Regra desativada (comentada no original como "Removendo o brilho antigo") */
 }
+
+/* Layout do topo do cabeçalho (saudação e botão) */
 .header-top {
   display: flex; justify-content: space-between; align-items: flex-start;
+  padding-bottom: 24px;
 }
 
-/* ── HOME HERO (bloco destaque) ── */
+/* Texto "Bom dia, Nome" */
+.header-greeting { 
+  color: #C4973A; 
+  font-size: 16px; 
+  font-family: var(--font-display); 
+  font-style: italic; 
+  font-weight: 700; /* Devolve o negrito */
+  letter-spacing: 0; /* Conserta o espaçamento */
+  margin-bottom: 2px;
+}
+
+/* Nome da marca no cabeçalho */
+.header-brand {
+  font-family: var(--font-display);
+  font-size: 34px; 
+  color: var(--white);
+  letter-spacing: -0.02em;
+  line-height: 1.1; /* Ajusta a altura da linha para ficar mais compacto */
+}
+
+/* Botões com ícones arredondados (ex: notificações) */
+.btn-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%; /* Faz o botão ficar redondo */
+  background: rgba(255,255,255,.12); /* Fundo branco semi-transparente */
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  backdrop-filter: blur(6px); /* Efeito de vidro fosco no fundo */
+  transition: background .2s; /* Suaviza a mudança de cor ao passar o mouse */
+}
+.btn-icon:hover { 
+  background: rgba(255,255,255,.22); /* Fica mais claro ao passar o mouse */
+}
+
+/* ── HOME HERO (Bloco de destaque na tela inicial) ── */
 .home-hero {
-  background: linear-gradient(165deg, var(--wine) 0%, #9B2E45 100%);
-  padding: 24px 20px 28px;
+  background: linear-gradient(135deg, #681020 20%, #3C0E1B 100%);
+  padding: 26px 20px 30px;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
-}
-.home-hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 70% 80% at 90% 50%, rgba(196,151,58,.15) 0%, transparent 60%);
-  pointer-events: none;
+  margin: 0;
+  margin-top: -30px; /* Puxa para cima para fechar o buraco claro */
+  border-radius: 30px 30px 0px 0px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+  z-index: 10; /* Passa por cima do cabeçalho fixo ao rolar */
 }
 
-/* ── HOME SEARCH WRAP ── */
+.home-hero::before {
+  display: none; /* Desativa pseudo-elemento */
+}
+
+/* Cria uma forma visual (bolha decorativa) no lado direito do Hero */
+.home-hero::after {
+  content: ''; /* Necessário para pseudo-elementos aparecerem */
+  position: absolute;
+  right: -60px; 
+  top: 5%;
+  transform: translateY(-50%);
+  width: 150px; 
+  height: 140px;
+  border-radius: 180px; /* Deixa totalmente redondo */
+  background: #6a1a2b; 
+  pointer-events: none; /* O usuário não consegue clicar nisso */
+  opacity: 0.95;
+}
+
+/* Tag/Bagde indicadora (ex: "Destaque" ou categoria) */
+.hero-badge {
+  display: inline-block;
+  background: #b88d36;
+  color: #2e0811;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .12em; 
+  text-transform: uppercase;
+  padding: 6px 14px; 
+  border-radius: 99px; /* Formato de pílula */
+  margin-bottom: 14px;
+  position: relative; 
+  z-index: 2; /* Fica acima da bolha decorativa */
+}
+
+/* Título dentro do Hero */
+.hero-title {
+  font-family: var(--font-display);
+  font-size: 32px; color: #f3f3f3;
+  line-height: 1.1; margin-bottom: 6px;
+  position: relative; 
+  z-index: 2;
+}
+
+/* Subtítulo dentro do Hero */
+.hero-sub { 
+  color: rgba(255,255,255,.8); 
+  font-size: 15px; 
+  margin-bottom: 0; 
+  font-family: var(--font-display);
+  font-style: italic;
+  position: relative; 
+  z-index: 2;
+}
+
 .home-search-wrap {
   background: var(--cream);
   padding: 16px 20px;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(74,15,30,.08);
+  position: relative;
+  z-index: 10; /* Passa por cima do cabeçalho fixo ao rolar */
 }
 
-.header-greeting { color: rgba(255,255,255,.7); font-size: 13px; letter-spacing: .04em; }
-.header-brand {
-  font-family: var(--font-display);
-  font-size: 34px; color: var(--white);
-  letter-spacing: .02em; line-height: 1.1;
-}
-.btn-icon {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.12);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  backdrop-filter: blur(6px);
-  transition: background .2s;
-}
-.btn-icon:hover { background: rgba(255,255,255,.22); }
-
+/* NOTA: Há código duplicado aqui para .btn-icon, .hero-badge, .hero-title, .hero-sub no arquivo original.
+   Eles sobreescrevem parcialmente as regras acima (ex: font-size de hero-title muda de 32px para 36px aqui). */
 .hero-badge {
   display: inline-block;
   background: var(--gold);
@@ -176,6 +336,7 @@ input { font-family: inherit; }
 }
 .hero-sub { color: rgba(255,255,255,.65); font-size: 14px; margin-bottom: 0; }
 
+/* Contêiner do campo de busca visual */
 .search-bar {
   display: flex; align-items: center; gap: 10px;
   background: var(--white);
@@ -184,19 +345,41 @@ input { font-family: inherit; }
   box-shadow: 0 2px 12px rgba(74,15,30,.12);
   border: 1px solid var(--cream-dark);
 }
-.search-icon { font-size: 16px; opacity: .5; flex-shrink: 0; }
-.search-bar input {
-  flex: 1; border: none; outline: none;
-  font-size: 14px; background: transparent; color: var(--text);
+
+/* Ícone de lupa dentro do input */
+.search-icon { 
+  font-size: 16px; 
+  opacity: .5; 
+  flex-shrink: 0; 
 }
-.search-bar input::placeholder { color: var(--text-muted); }
+
+/* O campo de input digitável em si */
+.search-bar input {
+  flex: 1; /* Ocupa todo o espaço restante dentro do contêiner */
+  border: none; 
+  outline: none; /* Remove a borda azul padrão de foco do navegador */
+  font-size: 16px; 
+  background: transparent; 
+  color: var(--text);
+}
+
+.search-bar input::placeholder { color: var(--text-muted); } /* Cor do texto de dica no input */
 
 /* ══════════════════════════════════════════════
-   HOME CONTENT
+   HOME CONTENT (Conteúdo principal abaixo da busca)
 ══════════════════════════════════════════════ */
-.home-content { padding: 24px 20px 0; flex: 1; }
+.home-content { 
+  padding: 24px 20px 0; 
+  flex: 1; 
+  background: var(--cream); /* Garante fundo sólido na rolagem */
+  position: relative;
+  z-index: 10; /* Passa por cima do cabeçalho fixo ao rolar */
+}
 
+/* Margem inferior para separar seções (ex: "Destaques", "Perto de você") */
 .section { margin-bottom: 28px; }
+
+/* Título de cada seção */
 .section-title {
   font-family: var(--font-display);
   font-size: 22px; font-weight: 600;
@@ -204,43 +387,63 @@ input { font-family: inherit; }
   margin-bottom: 14px;
 }
 
-/* ── Featured Cards ── */
+/* ── Featured Cards (Carrossel horizontal de destaques) ── */
 .cards-row {
   display: flex; gap: 12px;
-  overflow-x: auto; padding-bottom: 4px;
-  scrollbar-width: none;
+  overflow-x: auto; /* Permite rolagem horizontal se tiver muitos cards */
+  padding-bottom: 4px;
+  scrollbar-width: none; /* Esconde a barra de rolagem no Firefox */
 }
-.cards-row::-webkit-scrollbar { display: none; }
+.cards-row::-webkit-scrollbar { display: none; } /* Esconde a barra de rolagem no Chrome/Safari */
 
+/* Estilo individual de cada card em destaque */
 .feat-card {
-  flex: 0 0 180px;
+  flex: 0 0 220px; /* Não encolhe, não cresce, tamanho fixo de 180px de largura */
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: hidden; /* Garante que a imagem não vaze dos cantos arredondados */
   position: relative;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition: transform .2s, box-shadow .2s;
+  transition: transform .2s, box-shadow .2s; /* Suaviza animações no hover */
 }
-.feat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+/* Efeito ao passar o mouse: levanta o card e aumenta a sombra */
+.feat-card:hover { 
+  transform: translateY(-3px); 
+  box-shadow: var(--shadow-lg); 
+}
+
+/* Imagem de fundo do card */
 .feat-card img {
-  width: 100%; height: 140px; object-fit: cover;
+  width: 100%; height: 170px; 
+  object-fit: cover; /* Corta a imagem para caber perfeitamente no espaço sem distorcer */
   transition: transform .4s;
 }
+
+/* Efeito de zoom leve na imagem ao passar o mouse no card */
 .feat-card:hover img { transform: scale(1.04); }
+
+/* Área escura por cima da base da imagem para o texto ficar legível */
 .feat-card-info {
   position: absolute; bottom: 0; left: 0; right: 0;
   padding: 28px 12px 12px;
-  background: linear-gradient(to top, rgba(74,15,30,.85) 0%, transparent 100%);
+  background: linear-gradient(to top, rgba(74,15,30,.85) 0%, transparent 100%); /* Degradê escuro para transparente */
 }
+
 .feat-card-name {
   font-weight: 600; font-size: 13px; color: var(--white);
   line-height: 1.3;
 }
-.feat-card-loc { font-size: 11px; color: rgba(255,255,255,.7); margin-top: 2px; }
+.feat-card-loc { 
+  font-size: 11px; color: rgba(255,255,255,.7); margin-top: 2px; 
+}
 
-/* ── Nearby List ── */
-.list-items { display: flex; flex-direction: column; gap: 10px; }
+/* ── Nearby List (Lista vertical de locais próximos) ── */
+.list-items { 
+  display: flex; flex-direction: column; gap: 10px; 
+}
 
+/* Estilo de cada item da lista */
 .list-item {
   display: flex; align-items: center; gap: 14px;
   background: var(--white);
@@ -250,30 +453,47 @@ input { font-family: inherit; }
   box-shadow: 0 2px 10px rgba(74,15,30,.07);
   transition: box-shadow .2s, transform .2s;
 }
-.list-item:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.list-item:hover { 
+  box-shadow: var(--shadow); 
+  transform: translateY(-2px); 
+}
+
+/* Miniatura da imagem na lista */
 .list-img {
   width: 60px; height: 60px;
-  border-radius: 10px; object-fit: cover;
-  flex-shrink: 0;
+  border-radius: 10px; 
+  object-fit: cover;
+  flex-shrink: 0; /* Impede que a imagem encolha se o texto for muito grande */
 }
-.list-info { flex: 1; min-width: 0; }
+
+/* Contêiner dos textos da lista */
+.list-info { 
+  flex: 1; /* Ocupa o espaço livre */
+  min-width: 0; /* Evita bug do flexbox que faz o texto vazar da tela */
+}
 .list-name { font-weight: 600; font-size: 14px; color: var(--text); }
 .list-addr { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Distância (ex: 2km) */
 .list-dist {
   font-size: 11px; color: var(--wine);
   margin-top: 4px; display: flex; align-items: center; gap: 3px;
 }
+/* Setinha para a direita na lista */
 .list-arrow { color: var(--cream-dark); font-size: 18px; }
 
 /* ══════════════════════════════════════════════
-   PAGE HEADER (generic)
+   PAGE HEADER (Cabeçalho genérico de outras páginas)
 ══════════════════════════════════════════════ */
 .page-header {
-  background: var(--wine-dark);
+  background: linear-gradient(135deg, #681020 20%, #3C0E1B 100%); /* Mesmo degrade do destaque */
   padding: 52px 20px 16px;
   display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 10;
+  
+  /* Z-index mantido para garantir que fique em cima de eventuais sombras */
+  z-index: 10;
 }
+
 .page-header h2 {
   font-family: var(--font-display);
   font-size: 28px; color: var(--white);
@@ -281,17 +501,21 @@ input { font-family: inherit; }
 .map-controls { display: flex; gap: 8px; }
 
 /* ══════════════════════════════════════════════
-   MAPA
+   MAPA (Estilos para a tela do Mapa)
 ══════════════════════════════════════════════ */
+/* Barra horizontal de filtros (Botões de categoria) */
 .map-filters {
-  display: flex; gap: 8px; padding: 12px 16px;
-  background: var(--wine-dark);
+  display: flex; gap: 8px; 
+  padding: 10px 20px 20px; /* Alinhamento lateral corrigido e mais respiro no fundo */
+  background: #4A0A17; /* Mesma cor do cabeçalho para criar um bloco unificado */
   overflow-x: auto; scrollbar-width: none;
 }
+
 .map-filters::-webkit-scrollbar { display: none; }
 
+/* Botões de filtro (Histórico, Cultural, etc) */
 .filter-btn {
-  flex: 0 0 auto;
+  flex: 0 0 auto; /* Evita que o botão quebre em duas linhas */
   background: rgba(255,255,255,.12);
   color: var(--white);
   border: 1px solid rgba(255,255,255,.2);
@@ -301,6 +525,8 @@ input { font-family: inherit; }
   letter-spacing: .02em;
   transition: all .2s;
 }
+
+/* Estado ativo do botão de filtro */
 .filter-btn.active {
   background: var(--gold);
   border-color: var(--gold);
@@ -308,32 +534,48 @@ input { font-family: inherit; }
   font-weight: 600;
 }
 
+/* Remove a rolagem da página e o espaçamento inferior apenas na aba do mapa */
+#screen-mapa {
+  padding-bottom: 0; 
+  overflow: hidden; 
+}
+
 #map {
-  flex: 1;
+  flex: 1; /* Faz o mapa crescer para ocupar todo o espaço restante */
+  width: 100%;
   z-index: 1;
 }
 
-/* Custom Leaflet markers */
+/* Contêiner principal da biblioteca de mapa (Leaflet/Google Maps) */
+#map {
+  flex: 1; /* Preenche o resto da tela */
+  z-index: 1;
+}
+
+/* Marcadores personalizados no mapa (Formato de gota/pino) */
 .custom-marker {
   width: 36px; height: 36px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
+  border-radius: 50% 50% 50% 0; /* Arredonda 3 pontas, deixa 1 reta (formato gota) */
+  transform: rotate(-45deg); /* Gira para a ponta reta apontar para baixo */
   display: flex; align-items: center; justify-content: center;
   border: 2px solid white;
   box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
+
+/* Gira o conteúdo interno de volta para ficar reto (desfazendo os -45deg do pai) */
 .custom-marker span {
   transform: rotate(45deg);
   font-size: 16px;
 }
+
+/* Cores específicas baseadas na categoria do marcador */
 .marker-historico { background: var(--wine); }
-.marker-cultural   { background: #7D3A8A; }
-.marker-natural    { background: var(--success); }
+.marker-cultural   { background: #7D3A8A; } /* Roxo */
+.marker-natural    { background: var(--success); } /* Verde */
 
 /* ══════════════════════════════════════════════
-   IA SCREEN
+   IA SCREEN (Tela de Inteligência Artificial)
 ══════════════════════════════════════════════ */
-/* Modificado: Adicionado flex e flex: 1 para ocupar a tela */
 .ia-content { 
   padding: 24px 20px; 
   display: flex;
@@ -341,18 +583,20 @@ input { font-family: inherit; }
   flex: 1;
 }
 
+/* Barra de pontuação visual (estado de conservação) */
 .score-bar {
   flex: 1; height: 4px; background: var(--cream-dark);
   border-radius: 99px; overflow: hidden;
 }
-.score-fill { height: 100%; border-radius: 99px; }
-.score-good { background: var(--success); }
-.score-mid  { background: var(--warn); }
-.score-bad  { background: var(--danger); }
+.score-fill { height: 100%; border-radius: 99px; } /* O preenchimento interno que cresce */
+.score-good { background: var(--success); } /* Cor verde */
+.score-mid  { background: var(--warn); } /* Cor amarela */
+.score-bad  { background: var(--danger); } /* Cor vermelha */
 
 /* ══════════════════════════════════════════════
    FAVORITOS
 ══════════════════════════════════════════════ */
+/* Estilo para quando a lista de favoritos está vazia */
 .empty-state {
   text-align: center; padding: 60px 20px;
   color: var(--text-muted);
@@ -360,23 +604,28 @@ input { font-family: inherit; }
 .empty-icon { font-size: 48px; margin-bottom: 12px; }
 
 /* ══════════════════════════════════════════════
-   PERFIL
+   PERFIL (Tela de Usuário)
 ══════════════════════════════════════════════ */
 .perfil-content { padding: 32px 20px; }
+
+/* Foto/Ícone de Perfil */
 .perfil-avatar {
   width: 88px; height: 88px;
   background: var(--wine-dark);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 40px;
-  margin: 0 auto 16px;
+  margin: 0 auto 16px; /* Centraliza horizontalmente e dá margem inferior */
   box-shadow: var(--shadow-lg);
 }
+
 .perfil-name {
   font-family: var(--font-display);
   font-size: 26px; text-align: center; color: var(--wine-dark);
 }
 .perfil-sub { text-align: center; color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+/* Bloco de estatísticas (ex: locais visitados) */
 .perfil-stats {
   display: flex; justify-content: center; gap: 32px;
   margin: 28px 0;
@@ -386,13 +635,17 @@ input { font-family: inherit; }
   box-shadow: var(--shadow);
 }
 .stat { text-align: center; }
-.stat-n {
+.stat-n { /* Número da estatística */
   display: block;
   font-family: var(--font-display);
   font-size: 32px; color: var(--wine);
   font-weight: 700;
 }
-.stat-l { font-size: 11px; color: var(--text-muted); }
+.stat-l { /* Rótulo da estatística (ex: "Visitados") */
+  font-size: 11px; color: var(--text-muted); 
+}
+
+/* Lista de opções do perfil (Menu) */
 .perfil-menu { display: flex; flex-direction: column; gap: 8px; }
 .perfil-item {
   background: var(--white);
@@ -407,65 +660,110 @@ input { font-family: inherit; }
 .perfil-item:hover { background: var(--cream-dark); }
 
 /* ══════════════════════════════════════════════
-   BOTTOM NAV
+   BOTTOM NAV (Animação Flutuante / Pílula)
+══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════
+   BOTTOM NAV (Menu Menor, Harmônico e Pílula)
 ══════════════════════════════════════════════ */
 .bottom-nav {
-  height: var(--nav-h);
+  height: 64px; /* Diminuímos a altura geral do menu (antes era 72px) */
   background: var(--wine-dark);
   display: flex;
   border-top: 1px solid rgba(255,255,255,.08);
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 50;
+  
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 0;
+  transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 }
+
+.bottom-nav.nav-hidden {
+  width: calc(100% - 32px);
+  transform: translateY(-16px);
+  border-radius: 32px;
+  border-top-color: transparent;
+  padding-bottom: 0;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+/* Alinhamento dos itens padrão */
 .nav-item {
-  flex: 1;
+  flex: 1; 
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 3px;
+  gap: 4px; /* Respiro certinho entre o ícone e o texto */
   color: rgba(255,255,255,.45);
   font-size: 10px; font-weight: 500;
   letter-spacing: .04em;
   transition: color .2s;
-  position: relative;
 }
+
 .nav-item.active { color: var(--gold); }
 .nav-icon { font-size: 20px; }
 .nav-label { font-size: 10px; }
 
+/* Botão central flutuante (Ajustado para Ícone + Texto) */
 .nav-center {
-  width: 56px; height: 56px;
+  width: 58px; height: 58px; /* Aumentamos um pouquinho para caber o texto */
+  flex: 0 0 58px; 
   background: var(--gold);
   border-radius: 50%;
   color: var(--wine-dark) !important;
-  margin-top: -20px;
-  box-shadow: 0 -4px 20px rgba(196,151,58,.4);
-  flex: 0 0 64px;
+  margin-top: -18px; 
+  box-shadow: 0 -4px 16px rgba(196,151,58,.35);
+  
+  display: flex; 
+  flex-direction: column; /* Coloca um embaixo do outro */
+  align-items: center; 
+  justify-content: center;
+  gap: 1px; /* Espaço mínimo entre robô e texto */
 }
-.nav-center .nav-icon { font-size: 24px; }
+
+/* Traz o texto de volta, com um tamanho adaptado */
+.nav-center .nav-label { 
+  display: block; 
+  font-size: 10px; 
+  font-weight: 700; /* Deixa o IA em negrito para leitura fácil */
+  margin-top: -2px;
+}
+
+/* Ajusta o tamanho do ícone para dar espaço ao texto */
+.nav-center .nav-icon { 
+  font-size: 22px; 
+  margin: 0; 
+}
 
 /* ══════════════════════════════════════════════
-   MODAL DETALHE
+   MODAL DETALHE (Janela que sobe de baixo para mostrar locais)
 ══════════════════════════════════════════════ */
+/* Fundo escuro que bloqueia a tela atrás do modal */
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,.5);
   z-index: 200;
-  display: flex; align-items: flex-end;
-  backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; /* Alinha a janela do modal na parte de baixo da tela */
+  backdrop-filter: blur(4px); /* Desfoca o fundo atrás da overlay */
 }
 .modal-overlay.hidden { display: none; }
 
+/* A "folha" branca principal do modal */
 .modal-sheet {
-  width: 100%; max-height: 93vh;
+  width: 100%; max-height: 93vh; /* Ocupa no máximo 93% da tela, não cobrindo tudo */
   background: var(--cream);
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px 20px 0 0; /* Arredonda apenas os cantos de cima */
   overflow-y: auto;
-  animation: slideUp .35s cubic-bezier(.32,.72,0,1);
+  animation: slideUp .35s cubic-bezier(.32,.72,0,1); /* Animação suave deslizando de baixo */
 }
+
+/* Keyframe para a animação de deslizar para cima do modal */
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to   { transform: none; }
+  from { transform: translateY(100%); } /* Começa 100% para baixo (fora da tela) */
+  to   { transform: none; } /* Termina na posição 0 */
 }
+
+/* Aquele tracinho cinza no topo do modal que indica que ele pode ser arrastado/fechado */
 .modal-handle {
   width: 40px; height: 4px;
   background: rgba(0,0,0,.15);
@@ -473,6 +771,7 @@ input { font-family: inherit; }
   margin: 10px auto 0;
 }
 
+/* Imagem de cabeçalho do modal */
 .modal-img-wrap {
   position: relative; height: 240px;
   overflow: hidden; margin-bottom: 0;
@@ -480,6 +779,8 @@ input { font-family: inherit; }
 .modal-img-wrap img {
   width: 100%; height: 100%; object-fit: cover;
 }
+
+/* Botão de voltar (setinha superior esquerda) no modal */
 .modal-back {
   position: absolute; top: 52px; left: 16px;
   width: 36px; height: 36px;
@@ -487,6 +788,8 @@ input { font-family: inherit; }
   color: white; border-radius: 50%;
   font-size: 18px; backdrop-filter: blur(6px);
 }
+
+/* Botão de favoritar (coração superior direito) no modal */
 .modal-fav {
   position: absolute; top: 52px; right: 16px;
   width: 36px; height: 36px;
@@ -495,7 +798,10 @@ input { font-family: inherit; }
   font-size: 18px; backdrop-filter: blur(6px);
   transition: transform .2s;
 }
+/* Coração animado (aumenta e fica dourado) quando ativado */
 .modal-fav.active { color: var(--gold); transform: scale(1.2); }
+
+/* Pequeno botão flutuante para ver em 3D */
 .btn-3d {
   position: absolute; bottom: 12px; right: 12px;
   background: rgba(0,0,0,.6);
@@ -517,6 +823,7 @@ input { font-family: inherit; }
   margin-bottom: 12px;
 }
 
+/* Tags de atributos (ex: Acessível, Pet Friendly, etc) */
 .modal-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
 .tag {
   background: var(--cream-dark);
@@ -526,6 +833,7 @@ input { font-family: inherit; }
   display: flex; align-items: center; gap: 4px;
 }
 
+/* Cards internos no modal (ex: Diagnóstico de IA) */
 .modal-card {
   background: var(--white);
   border-radius: var(--radius);
@@ -544,6 +852,8 @@ input { font-family: inherit; }
   margin-bottom: 12px;
 }
 .card-header-row h4 { margin-bottom: 0; }
+
+/* Emblema "IA" */
 .badge-ai {
   background: var(--wine);
   color: var(--white);
@@ -551,6 +861,7 @@ input { font-family: inherit; }
   padding: 4px 10px; border-radius: 6px;
 }
 
+/* Lista de estados de conservação (ex: Rachaduras, Infiltrações) */
 .estado-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .estado-item {
   display: flex; align-items: center; gap: 5px;
@@ -565,6 +876,7 @@ input { font-family: inherit; }
 .dot-yellow { background: var(--warn); }
 .dot-red    { background: var(--danger); }
 
+/* Botões simuladores (filtro para visualização Antes/Depois) */
 .sim-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .sim-btn {
   background: var(--cream-dark);
@@ -582,6 +894,7 @@ input { font-family: inherit; }
   border-color: var(--gold);
 }
 
+/* Botão principal (Aplicar filtro, Visualizar, etc) */
 .btn-aplicar {
   width: 100%;
   background: var(--gold);
@@ -593,7 +906,7 @@ input { font-family: inherit; }
   margin-bottom: 12px;
   transition: filter .2s, transform .2s;
 }
-.btn-aplicar:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-aplicar:hover { filter: brightness(1.08); transform: translateY(-1px); } /* Levemente mais claro ao hover */
 
 .sim-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .sim-tag {
@@ -601,6 +914,7 @@ input { font-family: inherit; }
   display: flex; align-items: center; gap: 4px;
 }
 
+/* Link para comparar as imagens */
 .btn-compare {
   width: 100%; text-align: center;
   font-size: 13px; color: var(--wine);
@@ -608,9 +922,10 @@ input { font-family: inherit; }
   text-decoration: underline;
 }
 
+/* Caixa de descrição do local */
 .modal-desc {
   font-size: 14px; color: var(--text-muted);
-  line-height: 1.7;
+  line-height: 1.7; /* Aumenta o espaçamento das linhas para facilitar a leitura */
   background: var(--white);
   border-radius: var(--radius);
   padding: 16px;
@@ -618,7 +933,7 @@ input { font-family: inherit; }
 }
 
 /* ══════════════════════════════════════════════
-   MODAL COMPARAÇÃO
+   MODAL COMPARAÇÃO (Tela Antes / Depois interativa)
 ══════════════════════════════════════════════ */
 .compare-sheet {
   width: 100%; min-height: 100vh;
@@ -639,6 +954,7 @@ input { font-family: inherit; }
   color: var(--white); font-size: 22px;
 }
 
+/* Slider interativo de comparação de imagens (arrastar para ver antes/depois) */
 .compare-slider-wrap {
   padding: 0 20px;
   margin-bottom: 20px;
@@ -648,27 +964,33 @@ input { font-family: inherit; }
   border-radius: var(--radius);
   overflow: hidden;
   height: 300px;
-  user-select: none;
-  touch-action: none;
+  user-select: none; /* Previne selecionar imagem como texto */
+  touch-action: none; /* Controla o comportamento de toque nativo (necessário para o JS do slider funcionar bem no celular) */
 }
+
 .compare-img {
   position: absolute; top: 0; height: 100%;
   object-fit: cover;
 }
+/* A imagem de fundo (Antes) */
 .compare-before { left: 0; width: 100%; }
+/* A imagem da frente (Depois) - começa cobrindo só 50% através do clipe JS, mas base é 50% */
 .compare-after {
   left: 0; width: 50%;
-  clip-path: inset(0 0 0 0);
+  clip-path: inset(0 0 0 0); /* O clip-path será alterado pelo JavaScript */
 }
+
+/* A linha central que o usuário arrasta */
 .compare-divider {
   position: absolute; top: 0; bottom: 0;
   width: 3px;
   background: var(--white);
   left: 50%;
   transform: translateX(-50%);
-  cursor: col-resize;
+  cursor: col-resize; /* Cursor indicando redimensionamento horizontal */
   display: flex; align-items: center; justify-content: center;
 }
+/* O círculo no meio da linha central do divisor */
 .divider-circle {
   width: 32px; height: 32px;
   background: var(--white);
@@ -678,6 +1000,8 @@ input { font-family: inherit; }
   box-shadow: 0 2px 8px rgba(0,0,0,.3);
   flex-shrink: 0;
 }
+
+/* Etiquetas flutuantes indicando "Antes" e "Depois" */
 .compare-label {
   position: absolute; top: 12px;
   background: rgba(0,0,0,.55);
@@ -689,6 +1013,7 @@ input { font-family: inherit; }
 .label-before { left: 12px; }
 .label-after  { right: 12px; }
 
+/* Texto de descrição do Antes/Depois */
 .compare-desc {
   margin: 0 20px 20px;
   background: rgba(255,255,255,.08);
@@ -700,6 +1025,7 @@ input { font-family: inherit; }
 }
 .compare-sheet .btn-aplicar { margin: 0 20px; width: calc(100% - 40px); }
 
+/* Botão voltar para o conteúdo */
 .btn-back-content {
   display: block;
   margin: 14px 20px 0;
@@ -718,7 +1044,7 @@ input { font-family: inherit; }
 
 
 /* ══════════════════════════════════════════════
-   IA CHATBOT
+   IA CHATBOT (Interface de Chat)
 ══════════════════════════════════════════════ */
 .chatbot-wrap {
   background: var(--white);
@@ -729,6 +1055,7 @@ input { font-family: inherit; }
   display: flex;
   flex-direction: column;
 }
+/* Cabeçalho do Chatbot */
 .chatbot-header {
   background: linear-gradient(135deg, var(--wine-dark) 0%, var(--wine-mid) 100%);
   padding: 16px 18px;
@@ -750,6 +1077,8 @@ input { font-family: inherit; }
 .chatbot-header-info span {
   font-size: 11px; color: rgba(255,255,255,.6);
 }
+
+/* Área onde as mensagens rolam */
 .chatbot-messages {
   flex: 1; 
   min-height: 200px;
@@ -757,45 +1086,51 @@ input { font-family: inherit; }
   padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Alinha os itens à esquerda por padrão */
+  align-items: flex-start; /* Mensagens nascem na esquerda (bot) */
   gap: 12px;
   background: var(--cream);
-  scroll-behavior: smooth;
+  scroll-behavior: smooth; /* Rolagem nativa suave do CSS */
 }
+
+/* Estilizando a barra de rolagem específica para o chat */
 .chatbot-messages::-webkit-scrollbar { width: 10px; }
 .chatbot-messages::-webkit-scrollbar-track { background: transparent; }
 .chatbot-messages::-webkit-scrollbar-thumb { background: var(--cream-dark); border-radius: 99px; }
 
+/* Estilo base do balão de mensagem */
 .chat-msg {
-  max-width: 100%; /* Um limite um pouco maior para a tela inteira */
-  width: fit-content; /* Garante que a bolha expanda de acordo com o texto */
-  padding: 12px 20px
-  ;
+  max-width: 100%; 
+  width: fit-content; 
+  padding: 12px 20px;
   border-radius: 14px;
-  font-size: 14px; /* Aumentei levemente para melhorar a leitura */
+  font-size: 14px; 
   line-height: 1.5;
   animation: msgIn .2s ease;
-  word-wrap: break-word; /* Evita que textos muito longos ou links quebrem o layout */
-
+  word-wrap: break-word; /* Força quebra de linha em links compridos */
 }
 
+/* Animação do balão de mensagem surgindo */
 @keyframes msgIn {
-  from { opacity:0; transform: translateY(6px); }
-  to   { opacity:1; transform: none; }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
 }
+
+/* Balão do Bot (lado esquerdo) */
 .chat-msg.bot {
   background: var(--white);
   color: var(--text);
-  border-radius: 4px 14px 14px 14px;
+  border-radius: 4px 14px 14px 14px; /* Ponta fina no topo esquerdo */
   box-shadow: 0 1px 4px rgba(74,15,30,.1);
   align-self: flex-start;
 }
+/* Balão do Usuário (lado direito) */
 .chat-msg.user {
   background: var(--wine);
   color: var(--white);
-  border-radius: 14px 4px 14px 14px;
-  align-self: flex-end;
+  border-radius: 14px 4px 14px 14px; /* Ponta fina no topo direito */
+  align-self: flex-end; /* Joga a mensagem para o canto direito */
 }
+/* Balão de "Digitando..." (mesmo estilo do Bot, mas itálico) */
 .chat-msg.typing {
   background: var(--white);
   color: var(--text-muted);
@@ -805,6 +1140,8 @@ input { font-family: inherit; }
   font-style: italic;
   font-size: 12px;
 }
+
+/* Área de input de texto no chat */
 .chatbot-input-row {
   display: flex; gap: 8px;
   padding: 12px 14px;
@@ -822,6 +1159,8 @@ input { font-family: inherit; }
   outline: none;
 }
 .chatbot-input::placeholder { color: var(--text-muted); }
+
+/* Botão de enviar */
 .chatbot-send {
   width: 36px; height: 36px;
   background: var(--gold);
@@ -833,6 +1172,7 @@ input { font-family: inherit; }
 }
 .chatbot-send:hover { filter: brightness(1.1); }
 
+/* Sugestões de mensagens (botões pequenos acima do input) */
 .chatbot-suggestions {
   display: flex; flex-wrap: wrap; gap: 6px;
   padding: 10px 14px 0;
@@ -849,6 +1189,7 @@ input { font-family: inherit; }
 }
 .chat-suggestion:hover { background: var(--gold); }
 
+/* Seletor dropdown no topo do chat (ex: selecionar imóvel/patrimônio) */
 .chatbot-patrimonio-selector {
   padding: 12px 14px;
   background: var(--white);
@@ -872,8 +1213,9 @@ input { font-family: inherit; }
 }
 
 /* ══════════════════════════════════════════════
-   LEAFLET overrides
+   LEAFLET overrides (Sobrescrevendo estilos do mapa)
 ══════════════════════════════════════════════ */
+/* Estilizando a bolha (popup) nativa da biblioteca do Leaflet (mapa) */
 .leaflet-popup-content-wrapper {
   border-radius: var(--radius) !important;
   padding: 0 !important;
@@ -881,7 +1223,7 @@ input { font-family: inherit; }
   box-shadow: var(--shadow-lg) !important;
 }
 .leaflet-popup-content { margin: 0 !important; }
-.leaflet-popup-tip-container { display: none; }
+.leaflet-popup-tip-container { display: none; } /* Esconde o "triângulo" da bolha original */
 
 .map-popup {
   width: 200px;
@@ -895,6 +1237,8 @@ input { font-family: inherit; }
   color: var(--text); margin-bottom: 2px;
 }
 .map-popup-addr { font-size: 11px; color: var(--text-muted); }
+
+/* Botão dentro do popup do mapa */
 .map-popup-btn {
   display: block; width: 100%;
   background: var(--wine);
@@ -907,20 +1251,23 @@ input { font-family: inherit; }
 .map-popup-btn:hover { background: var(--wine-mid); }
 
 /* ══════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE (Ajustes para telas maiores)
 ══════════════════════════════════════════════ */
 @media (min-width: 480px) {
+  /* Em telas maiores que um celular (ex: desktop), o app ganha largura máxima e fica centralizado */
   #app { max-width: 430px; margin: 0 auto; }
   .compare-slider { height: 340px; }
 }
 
 @media (min-width: 768px) {
+  /* Em tablets, os cards na home ficam um pouco maiores */
   .feat-card { flex: 0 0 220px; }
   .feat-card img { height: 170px; }
 }
 
 /* ══════════════════════════════════════════════
-   MAPA — popup redesenhado
+   MAPA — popup redesenhado 
+   (NOTA: Sobrescreve as regras Leaflet acima para uma versão mais aprimorada)
 ══════════════════════════════════════════════ */
 .leaflet-popup-content-wrapper {
   border-radius: 16px !important;
@@ -999,7 +1346,7 @@ input { font-family: inherit; }
   flex: 1;
 }
 
-/* ── Tabs ── */
+/* ── Tabs do Administrador (ex: Criar / Listar) ── */
 .admin-tabs {
   display: flex; gap: 0;
   background: var(--wine-dark);
@@ -1013,7 +1360,7 @@ input { font-family: inherit; }
   color: rgba(255,255,255,.5);
   letter-spacing: .02em;
   border-bottom: 2.5px solid transparent;
-  margin-bottom: -2px;
+  margin-bottom: -2px; /* Faz a borda da aba sobrepor a borda do contêiner */
   transition: all .2s;
 }
 .admin-tab.active {
@@ -1022,23 +1369,25 @@ input { font-family: inherit; }
 }
 
 .admin-tab-content { display: none; }
-.admin-tab-content.active { display: block; }
+.admin-tab-content.active { display: block; } /* Mostra o conteúdo da aba ativa */
 
-/* ── Form ── */
+/* ── Formulário do Admin ── */
 .admin-form {
   padding: 20px;
   display: flex; flex-direction: column; gap: 14px;
 }
 
+/* Títulos de seção nos formulários */
 .admin-section-title {
   font-family: var(--font-display);
   font-size: 18px; font-weight: 600;
   color: var(--wine-dark);
-  border-left: 3px solid var(--gold);
+  border-left: 3px solid var(--gold); /* Barra dourada à esquerda do título */
   padding-left: 10px;
   margin-top: 8px;
 }
 
+/* Campos padrão do formulário (Inputs) */
 .admin-field {
   display: flex; flex-direction: column; gap: 5px;
 }
@@ -1063,6 +1412,7 @@ input { font-family: inherit; }
   transition: border-color .2s, box-shadow .2s;
   width: 100%;
 }
+/* Foco no input (borda amarela / dourada ao clicar) */
 .admin-field input:focus,
 .admin-field select:focus,
 .admin-field textarea:focus {
@@ -1070,17 +1420,19 @@ input { font-family: inherit; }
   box-shadow: 0 0 0 3px rgba(196,151,58,.15);
 }
 .admin-field textarea {
-  resize: vertical; min-height: 90px; line-height: 1.6;
+  resize: vertical; /* Permite redimensionar apenas a altura */
+  min-height: 90px; line-height: 1.6;
 }
 .admin-hint {
   font-size: 11px; color: var(--text-muted); font-style: italic;
 }
 
+/* Organiza campos de formulário em duas colunas lado a lado */
 .admin-row {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
 }
 
-/* ── Location button ── */
+/* ── Botão de localizar no mapa (Geolocalização) ── */
 .btn-locate-map {
   background: linear-gradient(135deg, var(--wine), var(--wine-mid));
   color: white;
@@ -1093,8 +1445,7 @@ input { font-family: inherit; }
 }
 .btn-locate-map:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-/* ── Image preview ── */
-/* ── Upload button ── */
+/* ── Preview e Upload de Imagem ── */
 .upload-btn {
   display: inline-flex;
   align-items: center;
@@ -1102,7 +1453,7 @@ input { font-family: inherit; }
   margin: 6px 0 4px;
   padding: 9px 18px;
   background: var(--gold);
-  color: var(--burgundy-dark);
+  color: var(--burgundy-dark); /* Variável ausente no root, possivelmente usará fallback default */
   font-size: .82rem;
   font-weight: 700;
   border-radius: 8px;
@@ -1112,17 +1463,19 @@ input { font-family: inherit; }
   letter-spacing: .03em;
 }
 .upload-btn:hover { opacity: .85; }
+
 .upload-filename {
   font-size: .78rem;
-  color: var(--burgundy);
+  color: var(--burgundy); /* Variável ausente */
   opacity: .75;
   min-height: 16px;
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; /* Adiciona "..." se o nome do arquivo for longo */
 }
 
+/* Caixa onde a imagem de preview é exibida */
 .img-preview-wrap { margin-top: 4px; }
 .img-preview {
   width: 100%; max-height: 160px;
@@ -1132,19 +1485,20 @@ input { font-family: inherit; }
   box-shadow: 0 2px 8px rgba(74,15,30,.1);
 }
 
-/* ── Conservation range ── */
+/* ── Barra deslizante (Range) de conservação ── */
 .conserv-wrap {
   display: flex; align-items: center; gap: 12px;
 }
 .conserv-wrap input[type="range"] {
   flex: 1;
   appearance: none;
-  -webkit-appearance: none;
+  -webkit-appearance: none; /* Remove o visual padrão nativo do slider */
   -moz-appearance: none;
   height: 5px; border-radius: 99px;
   background: var(--cream-dark); border: none; padding: 0;
   outline: none; cursor: pointer;
 }
+/* Estiliza o "botãozinho" redondo que arrasta no slider */
 .conserv-wrap input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 20px; height: 20px;
@@ -1161,7 +1515,7 @@ input { font-family: inherit; }
   font-family: var(--font-display);
 }
 
-/* ── Estado de conservação rows ── */
+/* ── Linhas dinâmicas para adicionar Estado de conservação (ex: adicionar múltiplos problemas) ── */
 .estado-inputs { display: flex; flex-direction: column; gap: 6px; }
 .estado-input-row {
   display: flex; align-items: center; gap: 8px;
@@ -1184,6 +1538,7 @@ input { font-family: inherit; }
   font-family: var(--font-body);
 }
 .estado-label-inp:focus { border-color: var(--gold); }
+/* Botão para remover linha */
 .btn-rm-estado {
   width: 30px; height: 30px;
   border-radius: 50%;
@@ -1194,6 +1549,7 @@ input { font-family: inherit; }
   transition: background .15s;
 }
 .btn-rm-estado:hover { background: var(--danger); color: white; }
+/* Botão para adicionar nova linha */
 .btn-add-estado {
   font-size: 12px; font-weight: 600;
   color: var(--wine);
@@ -1203,7 +1559,7 @@ input { font-family: inherit; }
   text-underline-offset: 2px;
 }
 
-/* ── Mensagem feedback ── */
+/* ── Mensagens de feedback do painel (Erro, Sucesso, etc) ── */
 .admin-msg {
   border-radius: 10px;
   padding: 12px 14px;
@@ -1215,7 +1571,7 @@ input { font-family: inherit; }
 .admin-msg-warn    { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
 .admin-msg-info    { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
 
-/* ── Botão salvar ── */
+/* ── Botão Salvar do Admin ── */
 .btn-salvar-admin {
   background: linear-gradient(135deg, var(--gold), #D4A84B);
   color: var(--wine-dark);
@@ -1234,7 +1590,7 @@ input { font-family: inherit; }
   box-shadow: 0 8px 24px rgba(196,151,58,.45);
 }
 
-/* ── Lista de patrimônios ── */
+/* ── Lista de patrimônios na área de admin ── */
 .admin-list-empty {
   text-align: center;
   padding: 40px 20px;
@@ -1247,6 +1603,7 @@ input { font-family: inherit; }
   display: flex; flex-direction: column; gap: 12px;
 }
 
+/* Estilo do card listado no painel */
 .admin-card {
   display: flex; align-items: center; gap: 12px;
   background: var(--white);
@@ -1275,10 +1632,12 @@ input { font-family: inherit; }
   text-transform: uppercase; letter-spacing: .08em;
   padding: 2px 7px; border-radius: 5px;
 }
+/* Cores das categorias na listagem admin */
 .admin-cat-historico { background: rgba(107,26,42,.12); color: var(--wine); }
 .admin-cat-cultural  { background: rgba(90,39,117,.12); color: #5A2775; }
 .admin-cat-natural   { background: rgba(26,92,42,.12);  color: #1A5C2A; }
 
+/* Botões de ação do card: Editar, Deletar */
 .admin-card-actions { display: flex; gap: 6px; }
 .admin-action-btn {
   font-size: 11px; font-weight: 600;
@@ -1299,7 +1658,7 @@ input { font-family: inherit; }
 .admin-del-btn:hover { background: rgba(196,58,58,.2); }
 
 /* ══════════════════════════════════════════════
-   LOGIN MODAL
+   LOGIN MODAL (Tela de Entrada/Autenticação)
 ══════════════════════════════════════════════ */
 .login-sheet {
   width: 100%;
@@ -1317,12 +1676,14 @@ input { font-family: inherit; }
   position: relative;
   overflow: hidden;
 }
+/* Detalhe de luz circular radial no fundo do header de login */
 .login-header::before {
   content: '';
   position: absolute; inset: 0;
   background: radial-gradient(ellipse 60% 80% at 80% 30%, rgba(196,151,58,.2) 0%, transparent 60%);
   pointer-events: none;
 }
+
 .login-icon {
   font-size: 40px; margin-bottom: 10px;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,.3));
@@ -1338,6 +1699,7 @@ input { font-family: inherit; }
   letter-spacing: .06em; text-transform: uppercase;
 }
 
+/* Corpo do formulário de login */
 .login-body {
   padding: 24px 24px 8px;
   display: flex; flex-direction: column; gap: 14px;
@@ -1367,22 +1729,25 @@ input { font-family: inherit; }
   box-shadow: 0 0 0 3px rgba(196,151,58,.18);
 }
 
+/* Campo de senha (com o botão de ver/esconder) */
 .login-pass-wrap {
   position: relative;
 }
 .login-pass-wrap input {
   width: 100%;
-  padding-right: 46px;
+  padding-right: 46px; /* Dá espaço para o botão do olho não ficar em cima do texto */
 }
+/* Botão "olhinho" da senha */
 .btn-toggle-pass {
   position: absolute; right: 12px; top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%); /* Centraliza verticalmente o botão independente do height */
   font-size: 18px; opacity: .5;
   transition: opacity .15s;
   background: none; border: none; cursor: pointer;
 }
 .btn-toggle-pass:hover { opacity: 1; }
 
+/* Mensagens do painel de login (Erros/Avisos) */
 .login-msg {
   border-radius: 10px;
   padding: 10px 14px;
@@ -1416,7 +1781,7 @@ input { font-family: inherit; }
 .btn-login-cancel:hover { color: var(--wine); }
 
 /* ══════════════════════════════════════════════
-   ADMIN SESSION BAR
+   ADMIN SESSION BAR (Barra no topo quando o Admin está logado)
 ══════════════════════════════════════════════ */
 .admin-session-bar {
   background: linear-gradient(135deg, var(--wine-dark) 0%, #2A0810 100%);
@@ -1438,8 +1803,11 @@ input { font-family: inherit; }
   font-size: 10px; color: var(--gold);
   text-transform: uppercase; letter-spacing: .08em;
 }
+
+/* Botões da barra de sessão */
 .admin-session-actions { display: flex; gap: 8px; align-items: center; }
 
+/* Botão "Gerenciar Admins" */
 .btn-mgr-admins {
   background: rgba(196,151,58,.2);
   border: 1px solid rgba(196,151,58,.4);
@@ -1451,6 +1819,7 @@ input { font-family: inherit; }
 }
 .btn-mgr-admins:hover { background: rgba(196,151,58,.35); }
 
+/* Botão "Sair" (Logout) */
 .btn-logout {
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.15);
@@ -1463,7 +1832,7 @@ input { font-family: inherit; }
 .btn-logout:hover { background: rgba(196,58,58,.25); color: #ff8888; border-color: rgba(196,58,58,.4); }
 
 /* ══════════════════════════════════════════════
-   GERENCIADOR DE ADMINS
+   GERENCIADOR DE ADMINS (Modal de criação/exclusão de usuários admins)
 ══════════════════════════════════════════════ */
 .adminmgr-sheet {
   width: 100%; max-height: 92vh;
@@ -1491,7 +1860,7 @@ input { font-family: inherit; }
 .adminmgr-header h3 {
   font-family: var(--font-display);
   font-size: 24px; color: var(--white);
-  position: relative;
+  position: relative; /* Garante que fica acima do ::before (fundo brilhante) */
 }
 .adminmgr-sub {
   font-size: 11px; color: var(--gold);
@@ -1511,6 +1880,7 @@ input { font-family: inherit; }
   margin-bottom: 14px;
 }
 
+/* Campos de entrada (Email/Senha) para criar novo admin */
 .adminmgr-field {
   display: flex; flex-direction: column; gap: 5px;
   margin-bottom: 12px;
@@ -1550,6 +1920,7 @@ input { font-family: inherit; }
 }
 .btn-criar-admin:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
+/* Lista de administradores atuais */
 .adminmgr-list {
   display: flex; flex-direction: column; gap: 8px;
   background: var(--white);
@@ -1563,13 +1934,14 @@ input { font-family: inherit; }
   color: var(--text-muted); font-size: 13px;
 }
 
+/* Item individual de um admin na lista */
 .adminmgr-item {
   display: flex; align-items: center; gap: 12px;
   padding: 13px 16px;
   border-bottom: 1px solid var(--cream-dark);
   animation: msgIn .2s ease;
 }
-.adminmgr-item:last-child { border-bottom: none; }
+.adminmgr-item:last-child { border-bottom: none; } /* Remove borda do último item */
 .adminmgr-item-icon { font-size: 22px; }
 .adminmgr-item-info { flex: 1; min-width: 0; }
 .adminmgr-item-name {
@@ -1579,6 +1951,7 @@ input { font-family: inherit; }
   font-size: 11px; color: var(--text-muted); margin-top: 2px;
 }
 
+/* Botão de lixeira para deletar admin */
 .btn-rm-admin {
   font-size: 16px; opacity: .5;
   padding: 6px; border-radius: 8px;
@@ -1586,6 +1959,7 @@ input { font-family: inherit; }
 }
 .btn-rm-admin:hover { opacity: 1; background: rgba(196,58,58,.12); }
 
+/* Botão para fechar o painel de gerenciar admins */
 .btn-fechar-mgr {
   display: block;
   width: calc(100% - 40px);
@@ -1599,3 +1973,202 @@ input { font-family: inherit; }
   transition: background .15s;
 }
 .btn-fechar-mgr:hover { background: #DDD5C5; }
+
+/* Reduz o tamanho do cabeçalho exclusivamente na aba do Mapa */
+#screen-mapa .page-header {
+  padding-top: 28px; /* Reduz o espaço acima do título (original era 52px) */
+  padding-bottom: 8px; /* Reduz o espaço abaixo do título */
+}
+/* ══════════════════════════════════════════════
+   MAPA — BLOCO ÚNICO DE GRADIENTE E AJUSTES
+══════════════════════════════════════════════ */
+#screen-mapa {
+  padding-bottom: 0; 
+  overflow: hidden; 
+  position: relative;
+}
+
+/* Lona de gradiente contínua no fundo */
+#screen-mapa::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 150px; /* Aumentado para cobrir o novo espaçamento */
+  background: linear-gradient(135deg, #681020 20%, #3C0E1B 100%);
+  z-index: 1;
+}
+
+/* Cabeçalho: Título centralizado e engrenagem na direita */
+#screen-mapa .page-header {
+  position: relative;
+  display: flex;
+  justify-content: flex-end; 
+  padding-top: 56px; 
+  padding-bottom: 12px;
+  background: transparent !important;
+  z-index: 2;
+}
+
+#screen-mapa .page-header h2 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: #F0E6D2;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Filtros: Espaçamento de respiro antes do mapa */
+#screen-mapa .map-filters {
+  padding-top: 16px; 
+  padding-bottom: 16px; 
+  background: transparent !important;
+  position: relative;
+  z-index: 2;
+}
+
+/* Mapa: Preenche o resto da tela */
+#map {
+  flex: 1; 
+  width: 100%;
+  position: relative;
+  z-index: 2; 
+}
+
+/* ══════════════════════════════════════════════
+   MENU DE CONFIGURAÇÕES DO MAPA
+══════════════════════════════════════════════ */
+.map-settings-menu {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  width: 160px;
+  display: flex; flex-direction: column; gap: 8px;
+  border: 1px solid var(--cream-dark);
+}
+
+.map-settings-menu.hidden { display: none !important; }
+
+.map-settings-menu h4 {
+  font-family: var(--font-display);
+  font-size: 16px; color: var(--wine-dark);
+  margin-bottom: 4px; text-align: center;
+}
+
+.map-style-btn {
+  background: var(--cream);
+  border: 1px solid var(--cream-dark);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 13px; color: var(--text); text-align: left;
+  transition: all .2s;
+}
+
+.map-style-btn.active {
+  background: var(--gold);
+  color: var(--wine-dark);
+  font-weight: 600; border-color: var(--gold);
+}
+
+/* ══════════════════════════════════════════════
+   TELA DE BUSCA AVANÇADA
+══════════════════════════════════════════════ */
+.busca-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; 
+  bottom: 64px; /* Para exatamente em cima do seu menu inferior */
+  background: var(--cream);
+  z-index: 45; /* Fica acima do app, mas abaixo do menu (50) */
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%); /* Escondida fora da tela na direita */
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.busca-screen.active {
+  transform: translateX(0); /* Desliza para dentro */
+}
+
+.busca-header {
+  background: #4A0A17;
+  padding: 52px 20px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  color: var(--white); flex-shrink: 0;
+}
+.btn-back-busca {
+  background: none; border: none; color: var(--white); font-size: 24px; cursor: pointer; padding-right: 12px;
+}
+.busca-title {
+  font-family: var(--font-display); font-size: 24px; font-weight: 700; flex: 1; text-align: left;
+}
+.btn-icon-busca {
+  width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.12);
+  color: white; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  border: none; backdrop-filter: blur(6px);
+}
+
+.busca-body {
+  flex: 1; overflow-y: auto; padding: 20px;
+}
+
+.busca-search-wrap {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--white); border: 1.5px solid var(--cream-dark); border-radius: 12px;
+  padding: 12px 16px; margin-bottom: 20px;
+}
+.busca-search-wrap input {
+  flex: 1; border: none; outline: none; background: transparent; font-size: 15px; color: var(--text);
+}
+.busca-search-wrap input::placeholder { color: var(--text-muted); }
+
+.busca-filters {
+  display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 24px; padding-bottom: 4px;
+}
+.busca-filters::-webkit-scrollbar { display: none; }
+.busca-filter-btn {
+  flex: 0 0 auto; padding: 8px 16px; border-radius: 99px;
+  font-size: 12px; font-weight: 600;
+  background: var(--white); border: 1px solid var(--cream-dark); color: var(--text-muted);
+  transition: all .2s;
+}
+.busca-filter-btn.active {
+  background: #6B1A2A; border-color: #6B1A2A; color: var(--white);
+}
+
+.busca-feat-card {
+  background: #6B1A2A; border-radius: 16px; overflow: hidden; margin-bottom: 16px;
+  display: flex; flex-direction: column; cursor: pointer; box-shadow: var(--shadow);
+}
+.busca-feat-icon {
+  height: 140px; background: #550D1A; display: flex; align-items: center; justify-content: center; font-size: 64px;
+}
+.busca-feat-info {
+  padding: 16px; color: white;
+}
+.busca-feat-info h3 {
+  font-family: var(--font-display); font-size: 22px; margin: 8px 0 6px; font-weight: 700; letter-spacing: 0.02em;
+}
+.busca-feat-meta {
+  display: flex; gap: 12px; font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 500;
+}
+
+.busca-list {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.busca-list-item {
+  background: var(--white); border: 1.5px solid var(--cream-dark); border-radius: 12px;
+  padding: 12px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+}
+.busca-list-icon {
+  width: 60px; height: 60px; background: var(--cream-dark); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;
+}
+.busca-list-info { flex: 1; min-width: 0; }
+.busca-list-info h4 { font-family: var(--font-display); font-size: 18px; color: var(--wine-dark); margin-bottom: 4px; font-weight: 700; }
+.busca-list-meta { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.busca-list-arrow { color: var(--cream-dark); font-size: 20px; padding-left: 8px; }

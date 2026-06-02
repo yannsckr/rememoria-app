@@ -67,11 +67,11 @@
       <p class="hero-sub">Descubra a história ao seu redor</p>
     </div>
 
-    <!-- Barra de pesquisa abaixo do hero -->
+<!-- Barra de pesquisa abaixo do hero -->
     <div class="home-search-wrap">
-      <div class="search-bar">
+      <div class="search-bar" onclick="openBusca()" style="cursor: pointer;">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Pesquisar patrimônios..." oninput="filterSearch(this.value)" />
+        <input type="text" placeholder="Pesquisar patrimônios..." readonly style="pointer-events: none;" />
       </div>
     </div>
 
@@ -101,6 +101,12 @@
         <button class="btn-icon" onclick="toggleMapSettings()">⚙️</button>
       </div>
     </header>
+
+    <div id="mapSettingsMenu" class="map-settings-menu hidden">
+      <h4>Estilo do Mapa</h4>
+      <button onclick="changeMapStyle('padrao')" id="btnMapPadrao" class="map-style-btn active">🗺️ Padrão</button>
+      <button onclick="changeMapStyle('satelite')" id="btnMapSatelite" class="map-style-btn">🌍 Satélite</button>
+    </div>
 
     <div class="map-filters">
       <button class="filter-btn active" data-cat="all" onclick="filterMap('all',this)">🏛️ Todos</button>
@@ -316,6 +322,35 @@
       </div>
     </div>
   </section>
+
+<!-- ══════════════════════════════════════════════
+       TELA DE BUSCA AVANÇADA (Desliza da direita)
+  ══════════════════════════════════════════════ -->
+  <div id="buscaScreen" class="busca-screen">
+    <header class="busca-header">
+      <button class="btn-back-busca" onclick="closeBusca()">←</button>
+      <h2 class="busca-title">Patrimônios</h2>
+      <button class="btn-icon-busca">🔍</button>
+    </header>
+
+    <div class="busca-body">
+      <div class="busca-search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="buscaInputAvancada" placeholder="Buscar patrimônios..." oninput="filterBuscaAvancada(this.value)" />
+      </div>
+
+      <div class="busca-filters">
+        <button class="busca-filter-btn active" onclick="setBuscaFilter(this)">Históricos</button>
+        <button class="busca-filter-btn" onclick="setBuscaFilter(this)">Culturais</button>
+        <button class="busca-filter-btn" onclick="setBuscaFilter(this)">Mais visitados</button>
+        <button class="busca-filter-btn" onclick="setBuscaFilter(this)">Próximos</button>
+      </div>
+
+      <div id="buscaContentAvançada">
+        <!-- O conteúdo será gerado dinamicamente pelo JavaScript -->
+      </div>
+    </div>
+  </div>
 
   <!-- ── NAV BAR ── -->
   <nav class="bottom-nav">
