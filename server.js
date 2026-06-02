@@ -14,7 +14,7 @@ const fs    = require("fs");
 const PORT = process.env.PORT || 3000;
 const API_KEY    = process.env.GEMINI_API_KEY;
 const STATIC_DIR = __dirname;
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-1.5-flash";
 
 if (!API_KEY) {
   console.error("❌  Defina a variável GEMINI_API_KEY antes de iniciar.");
