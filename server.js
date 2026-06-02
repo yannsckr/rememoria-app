@@ -4,6 +4,7 @@
    com a chave guardada em variável de ambiente.
 ═══════════════════════════════════════════════ */
 
+require('dotenv').config()
 const http  = require("http");
 const https = require("https");
 const path  = require("path");
