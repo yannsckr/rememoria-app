@@ -535,15 +535,27 @@ input {
 }
 
 /* Remove a rolagem da página e o espaçamento inferior apenas na aba do mapa */
+/* ── Ajuste da tela do mapa ── */
 #screen-mapa {
+  height: 100%;
   padding-bottom: 0; 
   overflow: hidden; 
+  position: relative;
+  background: #4A0A17; /* Isso elimina a fresta branca caso o mapa demore a carregar ou mude de tamanho */
 }
-
+/* Correção para o menu flutuante não vazar fundo branco */
+#screen-mapa ~ .bottom-nav.nav-hidden,
+#app:has(#screen-mapa.active) .bottom-nav.nav-hidden {
+  transform: translateY(0); /* Mantém o menu preso à base na tela de mapa */
+  width: 100%; /* Opcional: faz ele cobrir toda a extensão para não vazar o mapa nas quinas */
+  border-radius: 0;
+}
 #map {
-  flex: 1; /* Faz o mapa crescer para ocupar todo o espaço restante */
+  flex: 1; 
   width: 100%;
-  z-index: 1;
+  height: calc(100vh - 120px); /* Ajuste os 120px com base na soma da altura do seu topo + filtros */
+  position: relative;
+  z-index: 2; 
 }
 
 /* Contêiner principal da biblioteca de mapa (Leaflet/Google Maps) */
@@ -1988,12 +2000,18 @@ input {
   position: relative;
 }
 
+/* ═══════════════════════════════════════════════
+   MAPA — BLOCO ÚNICO DE GRADIENTE E AJUSTES
+═══════════════════════════════════════════════ */
+
 /* Lona de gradiente contínua no fundo */
 #screen-mapa::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 150px; /* Aumentado para cobrir o novo espaçamento */
+  /* ALTERAÇÃO AQUI: Mudamos de um height fixo para cobrir do topo até a base dos filtros */
+  bottom: calc(100% - 190px); /* Ajusta a descida do gradiente de forma fluida */
+  min-height: 195px;          /* Garante que ele passe da linha dos filtros com folga */
   background: linear-gradient(135deg, #681020 20%, #3C0E1B 100%);
   z-index: 1;
 }
