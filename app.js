@@ -530,6 +530,17 @@ function openModal(p) {
     updateProfileStats();
   }
 
+  // CONTROLADOR INDEPENDENTE DO BOTÃO ANTES E DEPOIS
+  const btnCompare = document.getElementById("mBtnCompare") || document.querySelector(".btn-compare");
+  if (btnCompare) {
+    // O botão só aparece se houver alguma imagem de comparação cadastrada
+    if (p.imgAfter || p.imgBefore) {
+      btnCompare.style.display = "block";
+    } else {
+      btnCompare.style.display = "none";
+    }
+  }
+
   const overlay = document.getElementById("modalOverlay");
   if (overlay) {
     overlay.classList.remove("hidden");
