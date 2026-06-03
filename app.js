@@ -126,12 +126,14 @@ const PATRIMONIOS = [
   }
 ];
 
-// ── Categorias Globais Dinâmicas ────────────────
-let CATEGORIAS = [
+// ── Categorias Globais Dinâmicas com Persistência ────────────────
+const CATEGORIAS_PADRAO = [
   { value: "historico", label: "Histórico", emoji: "🏛️", color: "#6B1A2A", accent: "#C4973A", ring: "rgba(107,26,42,0.25)" },
   { value: "cultural",  label: "Cultural",  emoji: "🎭", color: "#5A2775", accent: "#C484E8", ring: "rgba(90,39,117,0.25)" },
   { value: "natural",   label: "Natural",   emoji: "🌿", color: "#1A5C2A", accent: "#5CB86E", ring: "rgba(26,92,42,0.25)" }
 ];
+
+let CATEGORIAS = JSON.parse(localStorage.getItem("rememoria_categorias") || JSON.stringify(CATEGORIAS_PADRAO));
 
 // ── Estado global ──────────────────────────────
 let userLocation = null;
@@ -469,18 +471,32 @@ function openModal(p) {
     }
   }
   
- const cfgCat = CATEGORIAS.find(c => c.value === p.categoria) || { emoji: "📍", label: p.categoria };
+  const cfgCat = CATEGORIAS.find(c => c.value === p.categoria) || { emoji: "📍", label: p.categoria };
   const mTags = document.getElementById("mTags");
   if (mTags) {
-    let tagsHtml = `<span class="tag">${cfgCat.emoji} ${cfgCat.label}</span><span class="tag">📅 Fundado em ${p.fundado}</span><span class="tag">🏗️ ${p.estilo}</span>`;
+    // Começa com a categoria principal
+    let tagsHtml = `<span class="tag">${cfgCat.emoji} ${cfgCat.label}</span>`;
     
-    // NOVO: Adiciona a tag de Lei/Decreto se ela existir
-    if (p.leiDecreto) {
+    // NOVO: Renderiza as categorias extras caso existam no patrimônio
+    if (p.categoriasExtras && Array.isArray(p.categoriasExtras)) {
+      p.categoriasExtras.forEach(extraCatVal => {
+        const cfgExtra = CATEGORIAS.find(c => c.value === extraCatVal);
+        if (cfgExtra) {
+          tagsHtml += `<span class="tag">${cfgExtra.emoji} ${cfgExtra.label}</span>`;
+        }
+      });
+    }
+    
+    // Adiciona o restante das tags padrões
+    tagsHtml += `<span class="tag">📅 Fundado em ${p.fundado}</span><span class="tag">🏗️ ${p.estilo}</span>`;
+    
+    if (p.leiDecreto && p.leiDecreto !== "undefined" && p.leiDecreto.trim() !== "") {
       tagsHtml += `<span class="tag" style="background-color: var(--cream-dark); border: 1px solid var(--wine); color: var(--wine);">📜 ${p.leiDecreto}</span>`;
     }
     
     mTags.innerHTML = tagsHtml;
   }
+
   const mConserv = document.getElementById("mConservPercent");
   if (mConserv) mConserv.textContent = `Índice: ${p.conservacao || 0}%`;
 
@@ -1543,6 +1559,9 @@ function criarNovaCategoriaGlobal() {
   
   CATEGORIAS.push({ value: value, label: nome, emoji: emoji, ...corConfig });
   renderCategoriasUI();
+  localStorage.setItem("rememoria_categorias", JSON.stringify(CATEGORIAS));
+
+  renderCategoriasUI();
   nomeInp.value = ""; emojiInp.value = "";
   alert(`Categoria "${nome}" registrada globalmente!`);
 }
@@ -1563,7 +1582,7 @@ function editPatrimonio(id) {
     }
 
     catContainer.innerHTML = catList.map((catVal, i) => `
-      <div class="cat-input-row" style="display:flex; gap:8px; align-items:center; width:100%;">
+      <div class="cat-input-row" style="display:flex; gap:8px; align-items:center; width:100%; margin-top:4px;">
         <select class="af-cat-select" style="flex:1;">
           ${CATEGORIAS.map(cat => `<option value="${cat.value}" ${cat.value===catVal?"selected":""}>${cat.emoji} ${cat.label}</option>`).join("")}
         </select>
