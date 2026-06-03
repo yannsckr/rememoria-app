@@ -165,7 +165,7 @@ async function initApp() {
   renderFavs();
   updateProfileStats();
 
-  if (window._db) {
+    if (window._db) {
     try {
       const { collection, getDocs } = window._fbModules;
       const snap = await getDocs(collection(window._db, "patrimonios"));
@@ -174,6 +174,9 @@ async function initApp() {
         snap.forEach(doc => PATRIMONIOS.push({ id: doc.id, ...doc.data() }));
         renderHome();
         if (mapInstance) addMapMarkers(PATRIMONIOS);
+        
+        // CORREÇÃO AQUI: Atualiza o menu da IA com os dados recém-chegados do Firebase
+        updateChatbotOptions();
       }
     } catch(e) {
       console.warn("Usando dados locais:", e.message);
@@ -216,7 +219,7 @@ function requestLocation() {
   document.getElementById("locationPermissionOverlay").classList.remove("hidden");
 }
 
-function ejecutarGpsNativo() {
+function executarGpsNativo() {
   navigator.geolocation.getCurrentPosition(pos => {
     userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
     renderHome();
@@ -674,6 +677,21 @@ function renderChatbot() {
   `;
 }
 
+function updateChatbotOptions() {
+  const select = document.getElementById("chatPatrimSelect");
+  if (!select) return;
+  
+  const currentVal = select.value;
+  const options = PATRIMONIOS.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+  
+  select.innerHTML = `<option value="">— Escolha um patrimônio —</option>` + options;
+  
+  // Se já havia algo selecionado e ele ainda existe no banco, mantém a seleção
+  if (currentVal && PATRIMONIOS.some(p => p.id === currentVal)) {
+    select.value = currentVal;
+  }
+}
+
 function selectChatpatrimonio(id) {
   chatSelectedPatrimonio = PATRIMONIOS.find(p => p.id === id) || null;
   chatHistory = []; 
@@ -709,28 +727,37 @@ async function sendChat() {
   msgs.scrollTop = msgs.scrollHeight;
 
   const p = chatSelectedPatrimonio;
-  const systemPrompt = `Você é um assistente do ReMemória. Responda em pt-BR sobre: ${p.nome}, Categoria: ${p.categoria}, Conservação: ${p.conservacao}%. Descrição: ${p.desc}. Seja breve e amigável.`;
+  
+  const systemPrompt = `Você é um assistente do ReMemória. Responda em pt-BR sobre o patrimônio: ${p.nome}. O endereço dele é: ${p.endereco}. Categoria: ${p.categoria}. Conservação: ${p.conservacao}%. Descrição: ${p.desc}. Seja amigável e informe o endereço se o usuário perguntar como chegar.`;
 
   try {
     const messages = chatHistory.slice(-8);
-    const response = await fetch("/api/chat", {
+
+    const backendUrl = window.location.port === "5500" 
+      ? `http://${window.location.hostname}:4000/api/chat` 
+      : "/api/chat";
+
+    const response = await fetch(backendUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ system: systemPrompt, messages: messages })
     });
 
-    if (!response.ok) throw new Error("Falha na API");
     const data = await response.json();
-    const reply = (data.reply || "").trim() || "Desculpe, não consegui processar sua pergunta.";
+    const typingEl = document.getElementById(typingId);
+    if (typingEl) typingEl.remove();
 
-    chatHistory.push({ role: "assistant", content: reply });
+    if (data.reply) {
+      appendChatMsg(msgs, "bot", data.reply);
+      chatHistory.push({ role: "assistant", content: data.reply });
+    } else {
+      appendChatMsg(msgs, "bot", "Desculpe, não consegui obter uma resposta.");
+    }
+  } catch (err) {
     const typingEl = document.getElementById(typingId);
     if (typingEl) typingEl.remove();
-    appendChatMsg(msgs, "bot", reply);
-  } catch(err) {
-    const typingEl = document.getElementById(typingId);
-    if (typingEl) typingEl.remove();
-    appendChatMsg(msgs, "bot", `Modo Offline: Não foi possível conectar à IA no momento.`);
+    appendChatMsg(msgs, "bot", "Erro de conexão com o servidor. Tente novamente.");
+    console.error(err);
   }
 }
 
@@ -823,13 +850,18 @@ function openBusca() {
   setTimeout(() => document.getElementById("buscaInputAvancada").focus(), 350);
 }
 
+function filterBuscaAvancada(val) {
+  renderBuscaAvancada(val);
+}
+
 function closeBusca() {
   document.getElementById("buscaScreen").classList.remove("active");
 }
 
+
+
 /* =======================================================
    INTERCEPTADOR GLOBAL DE POP-UPS (ALERTS) ATUALIZADO
-   Substitui o alerta e atualiza mensagens automáticas
    ======================================================= */
 window.alert = function(mensagem) {
   if (mensagem === "Em breve!") {
@@ -1581,9 +1613,28 @@ async function deletePatrimonio(id) {
 
 function abrirNoGoogleMaps() {
   if (!currentPatrimonio) return;
-const url = `https://www.google.com/maps/search/?api=1&query=${enderecoEncoded}`;
-  s://www.google.com/maps/search/?api=1&query=${enderecoEncoded}`;const url = `http
+  const enderecoEncoded = encodeURIComponent(currentPatrimonio.endereco + ", São José dos Campos");
+  const url = `https://www.google.com/maps/search/?api=1&query=${enderecoEncoded}`;
   window.open(url, '_blank');
+}
+
+// ══════════════════════════════════════════════
+// ADMIN TABS
+// ══════════════════════════════════════════════
+function switchAdminTab(tabId, btn) {
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+  }
+
+  document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('admin-tab-' + tabId).classList.add('active');
+
+  if (tabId === 'lista') {
+    loadAdminList();
+  }
 }
 
 async function compartilharPatrimonio() {

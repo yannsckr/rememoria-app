@@ -1,28 +1,22 @@
-/* ═══════════════════════════════════════════════
-   ReMemória — Proxy Server (Google Gemini)
-   Roda localmente e repassa chamadas à API do Gemini
-   com a chave guardada em variável de ambiente.
-═══════════════════════════════════════════════ */
-
-require('dotenv').config()
+require('dotenv').config();
 const http  = require("http");
 const https = require("https");
 const path  = require("path");
 const fs    = require("fs");
 
-// ── Configurações ──────────────────────────────
-const PORT = process.env.PORT || 3000;
+// Porta 4000 isolada para evitar conflito com o VS Code
+const PORT = 4000;
 const API_KEY    = process.env.GEMINI_API_KEY;
 const STATIC_DIR = __dirname;
-const GEMINI_MODEL = "gemini-2.0-flash";
+
+// Usando o modelo universal compatível com qualquer chave de API
+const GEMINI_MODEL = "gemini-2.5-flash";
 
 if (!API_KEY) {
-  console.error("❌  Defina a variável GEMINI_API_KEY antes de iniciar.");
-  console.error("    Execute: iniciar.bat (Windows) ou ./iniciar.sh (Mac/Linux)");
+  console.error("❌ Defina a variável GEMINI_API_KEY no arquivo .env");
   process.exit(1);
 }
 
-// ── MIME types ─────────────────────────────────
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".css":  "text/css; charset=utf-8",
@@ -34,9 +28,7 @@ const MIME = {
   ".ico":  "image/x-icon",
 };
 
-// ── Servidor HTTP ──────────────────────────────
 const server = http.createServer((req, res) => {
-
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -47,14 +39,12 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-// ── Rota proxy: POST /api/chat ──────────────
   if (req.method === "POST" && req.url === "/api/chat") {
     let chunks = [];
     req.on("data", chunk => chunks.push(chunk));
     req.on("end", () => {
-      // Une os pedaços garantindo codificação correta em UTF-8
       const body = Buffer.concat(chunks).toString("utf8");
-      
+
       let parsed;
       try { parsed = JSON.parse(body); }
       catch { res.writeHead(400); res.end("JSON inválido"); return; }
@@ -62,22 +52,32 @@ const server = http.createServer((req, res) => {
       const systemPrompt = parsed.system || "";
       const messages     = parsed.messages || [];
 
-      // Converte diretamente o histórico recebido para o formato do Gemini
-      const geminiContents = messages.map(m => ({
-        role:  m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }]
-      }));
+      // 1. SANITIZAÇÃO DE HISTÓRICO
+      let sanitizedContents = [];
+      for (let m of messages) {
+        let mappedRole = m.role === "assistant" ? "model" : "user";
+        
+        if (sanitizedContents.length > 0 && sanitizedContents[sanitizedContents.length - 1].role === mappedRole) {
+          sanitizedContents[sanitizedContents.length - 1].parts[0].text += "\n" + m.content;
+        } else {
+          sanitizedContents.push({ role: mappedRole, parts: [{ text: m.content }] });
+        }
+      }
 
- // 1. CORREÇÃO DA CHAVE: systemInstruction ao invés de system_instruction
-        const payload = JSON.stringify({
-         systemInstruction: { parts: [{ text: systemPrompt }] },
-         contents: geminiContents,
+      // Injeção de personalidade manual na primeira mensagem (funciona em qualquer modelo)
+      if (sanitizedContents.length > 0 && sanitizedContents[0].role === "user" && systemPrompt) {
+         sanitizedContents[0].parts[0].text = `[INSTRUÇÕES DE COMPORTAMENTO]:\n${systemPrompt}\n\n[PERGUNTA DO USUÁRIO]:\n${sanitizedContents[0].parts[0].text}`;
+      }
+
+      // 2. Payload limpo (sem o campo systemInstruction que causava bloqueio)
+      const payload = JSON.stringify({
+        contents: sanitizedContents,
         generationConfig: {
           maxOutputTokens: 1000,
           temperature: 0.7,
         }
       });
-      
+
       const geminiPath = `/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
 
       const options = {
@@ -98,31 +98,28 @@ const server = http.createServer((req, res) => {
             const data = Buffer.concat(dataChunks).toString("utf8");
             const geminiResp = JSON.parse(data);
 
-            // 2. CORREÇÃO DE DEBUG: Repassar o erro verdadeiro se o Google reclamar de algo
             if (apiRes.statusCode !== 200) {
               console.error("Erro do Google:", geminiResp);
-              res.writeHead(apiRes.statusCode, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ 
-                error: { message: geminiResp.error?.message || `HTTP ${apiRes.statusCode} retornado pela API` } 
-              }));
+              const errMsg = geminiResp.error?.message || `HTTP ${apiRes.statusCode}`;
+              res.writeHead(200, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ reply: `⚠️ IA offline: ${errMsg}` }));
               return;
             }
 
-            const text = geminiResp?.candidates?.[0]?.content?.parts
-              ?.map(p => p.text || "").join("") || "";
+            const text = geminiResp?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "";
             res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
             res.end(JSON.stringify({ reply: text }));
           } catch (e) {
-            res.writeHead(502, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: { message: "Resposta inválida da API Gemini" } }));
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ reply: "⚠️ Falha ao ler a resposta do servidor do Google." }));
           }
         });
       });
 
       apiReq.on("error", err => {
         console.error("Erro ao chamar Gemini:", err.message);
-        res.writeHead(502);
-        res.end(JSON.stringify({ error: { message: err.message } }));
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ reply: `⚠️ Erro de rede com a API: ${err.message}` }));
       });
 
       apiReq.write(payload, "utf8");
@@ -131,7 +128,6 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // ── Arquivos estáticos ──────────────────────
   let filePath = path.join(STATIC_DIR, req.url === "/" ? "index.html" : req.url);
   const ext    = path.extname(filePath);
 
@@ -146,15 +142,14 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log("════════════════════════════════════════");
   console.log("  🏛️  ReMemória — Servidor iniciado!");
-  console.log(`  📡  http://localhost:${PORT}`);
-  console.log("  🤖  IA: Google Gemini 2.0 Flash");
+  console.log(`  📡  Local: http://localhost:${PORT}`);
+  console.log(`  🤖  IA: ${GEMINI_MODEL}`);
   console.log("  Pressione Ctrl+C para encerrar.");
   console.log("════════════════════════════════════════");
 
-  // Abre o browser automaticamente
   const { exec } = require("child_process");
   const url = `http://localhost:${PORT}`;
   const cmd =
