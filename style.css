@@ -2141,3 +2141,62 @@ input {
   text-overflow: ellipsis !important;       /* Adiciona o efeito '...' caso o texto seja longo demais */
   display: inline-block !important;
 }
+
+/* style.css - Cole no final do arquivo */
+
+/* Lightbox de Comparação */
+.compare-lightbox {
+    display: none; /* Escondido por padrão */
+    position: fixed;
+    z-index: 10000; /* Valor bem alto para ficar acima de todos os modais */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9); /* Fundo preto transparente */
+    cursor: zoom-out; /* Indica que clicar fecha */
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Quando estiver ativo */
+.compare-lightbox.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* A imagem dentro do lightbox */
+.compare-lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain; /* Mantém a proporção sem cortar */
+    border: 3px solid white;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    /* Animaçãozinha de entrada */
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.compare-lightbox.active img {
+    transform: scale(1);
+}
+
+/* Botão de fechar (X) */
+.close-lightbox {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.close-lightbox:hover {
+    color: var(--gold);
+    transform: scale(1.1);
+}

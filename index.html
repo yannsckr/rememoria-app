@@ -223,7 +223,7 @@
           </div>
           
             <div class="admin-field">
-              <label>Imagem "antes" (comparação) — envie arquivo <span style="font-weight:400;opacity:.7">(ou cole URL)</span></label>
+             <label>Imagem "depois" (comparação) — envie arquivo <span style="font-weight:400;opacity:.7">(ou cole URL)</span></label>
               <label class="upload-btn" for="af-imgbefore-file">📷 Escolher foto</label>
               <input type="file" id="af-imgbefore-file" accept="image/*" style="display:none" onchange="handleImgUpload(this,'af-imgbefore','prev-imgbefore')" />
                 <div class="upload-filename" id="af-imgbefore-fname"></div>
@@ -232,7 +232,7 @@
         </div>
           
           <div class="admin-field">
-            <label>Imagem "depois" (comparação) — envie arquivo <span style="font-weight:400;opacity:.7">(ou cole URL)</span></label>
+            <label>Imagem "antes" (comparação) — envie arquivo <span style="font-weight:400;opacity:.7">(ou cole URL)</span></label>
             <label class="upload-btn" for="af-imgafter-file">📷 Escolher foto</label>
             <input type="file" id="af-imgafter-file" accept="image/*" style="display:none" onchange="handleImgUpload(this,'af-imgafter','prev-imgafter')" />
             <div class="upload-filename" id="af-imgafter-fname"></div>
@@ -668,6 +668,11 @@
   <img id="fullscreenImg" src="" style="max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 12px; transform: scale(0.95); transition: transform 0.3s;" />
   <button onclick="closeFullscreen()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; backdrop-filter: blur(4px);">✕</button>
 </div>
+
+<div id="compareLightbox" class="compare-lightbox" onclick="closeCompareLightbox()">
+        <span class="close-lightbox">&times;</span>
+        <img id="lightboxImg" src="" alt="Imagem Expandida">
+    </div>
 
 </body>
 </html>

@@ -624,6 +624,24 @@ function openComparacao() {
   document.getElementById("cDesc").textContent = p.compareDesc;
   document.getElementById("compareOverlay").classList.remove("hidden");
   initSlider();
+
+// app.js - Dentro da função openComparacao(), no final dela.
+
+  // --- NOVA LÓGICA: Clique para expandir ---
+  // Busca as tags <img> dentro do wrapper da comparação
+  const imagensNoSlider = document.querySelectorAll('.compare-wrapper img');
+  
+  imagensNoSlider.forEach(img => {
+    // Muda o cursor para indicar que é clicável (uma lupa de mais)
+    img.style.cursor = 'zoom-in';
+    
+    // Define a ação do clique
+    img.onclick = function() {
+      // Chama a função para abrir o lightbox passando o link desta imagem
+      expandCompareImage(this.src);
+    };
+  });
+
 }
 
 function closeCompare(e) {
@@ -1834,7 +1852,6 @@ async function processarCSV() {
 
   reader.onerror = () => mostrarMsgLote("Erro ao ler o arquivo.", "error");
   reader.readAsText(file);
-}
 
 function mostrarMsgLote(text, type) {
   const el = document.getElementById("admin-lote-msg");
@@ -1915,4 +1932,33 @@ async function handleImgUpload(input, urlInputId, previewId) {
   };
   
   reader.readAsDataURL(file);
+}
+
+// app.js - Cole no final do arquivo, fora de outras funções
+
+// Função para abrir o lightbox com a imagem ampliada
+function expandCompareImage(src) {
+  const lightbox = document.getElementById("compareLightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
+  
+  if (!lightbox || !lightboxImg) return;
+
+  lightboxImg.src = src; // Define a imagem que foi clicada
+  lightbox.classList.add("active"); // Mostra o lightbox
+  
+  // Impede que o fundo do site role enquanto a imagem está expandida
+  document.body.style.overflow = "hidden";
+}
+
+// Função para fechar o lightbox
+function closeCompareLightbox() {
+  const lightbox = document.getElementById("compareLightbox");
+  if (lightbox) {
+    lightbox.classList.remove("active"); // Esconde o lightbox
+    
+    // Restaura a rolagem do site apenas se o modal principal também estiver fechado
+    if (!document.getElementById("modal").classList.contains("active")) {
+        document.body.style.overflow = "";
+    }
+  }
 }
