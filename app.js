@@ -1581,8 +1581,8 @@ async function deletePatrimonio(id) {
 
 function abrirNoGoogleMaps() {
   if (!currentPatrimonio) return;
-  const enderecoEncoded = encodeURIComponent(currentPatrimonio.endereco);
-  const url = `https://www.google.com/maps/search/?api=1&query=${enderecoEncoded}`;
+const url = `https://www.google.com/maps/search/?api=1&query=${enderecoEncoded}`;
+  s://www.google.com/maps/search/?api=1&query=${enderecoEncoded}`;const url = `http
   window.open(url, '_blank');
 }
 

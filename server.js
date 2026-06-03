@@ -14,7 +14,7 @@ const fs    = require("fs");
 const PORT = process.env.PORT || 3000;
 const API_KEY    = process.env.GEMINI_API_KEY;
 const STATIC_DIR = __dirname;
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-2.0-flash";
 
 if (!API_KEY) {
   console.error("❌  Defina a variável GEMINI_API_KEY antes de iniciar.");
@@ -69,9 +69,9 @@ const server = http.createServer((req, res) => {
       }));
 
  // 1. CORREÇÃO DA CHAVE: systemInstruction ao invés de system_instruction
-      const payload = JSON.stringify({
-        system_instruction: { parts: [{ text: systemPrompt }] },
-        contents: geminiContents,
+        const payload = JSON.stringify({
+         systemInstruction: { parts: [{ text: systemPrompt }] },
+         contents: geminiContents,
         generationConfig: {
           maxOutputTokens: 1000,
           temperature: 0.7,
