@@ -289,7 +289,7 @@ function renderHome(list) {
   }
   nearby = nearby.slice(0, 4);
   document.getElementById("nearbyList").innerHTML = nearby.map(p => {
-    const distLabel = (userLocation && p._dist != null) ? formatDist(p._dist) : p.dist;
+    const distLabel = (userLocation && p._dist != null) ? formatDist(p._dist) : (p.dist || "Distância indisponível");
     return `
     <div class="list-item" onclick='openModalById("${p.id}")'>
       <img class="list-img" src="${p.img}" alt="${p.nome}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'">
@@ -375,6 +375,7 @@ function addMapMarkers(data) {
   mapMarkers = [];
 
   data.forEach(p => {
+    if (!p.lat || !p.lng || (p.lat === 0 && p.lng === 0)) return;
     const cfg = CATEGORIAS.find(c => c.value === p.categoria) || {
       emoji: "📍",
       color: "#6B1A2A",
@@ -1446,8 +1447,8 @@ async function salvarPatrimonio() {
       simulacoes: (document.getElementById("af-sims").value || "").split(/,\s*/).filter(Boolean),
       simResultTags: (document.getElementById("af-simtags").value || "").split(/,\s*/).filter(Boolean),
       estado: readEstadoInputs(),
-      lat: parseFloat(document.getElementById("af-lat").value) || 0,
-      lng: parseFloat(document.getElementById("af-lng").value) || 0,
+      lat: parseFloat((document.getElementById("af-lat").value || "").replace(',', '.')) || 0,
+lng: parseFloat((document.getElementById("af-lng").value || "").replace(',', '.')) || 0,
       materiais: (document.getElementById("af-materiais").value || "").trim(),
       tecnicas: (document.getElementById("af-tecnicas").value || "").trim(),
       notas: (document.getElementById("af-notas").value || "").trim(),
