@@ -5,7 +5,7 @@ const path  = require("path");
 const fs    = require("fs");
 
 // Porta 4000 isolada para evitar conflito com o VS Code
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 const API_KEY    = process.env.GEMINI_API_KEY;
 const STATIC_DIR = __dirname;
 
@@ -181,14 +181,5 @@ server.listen(PORT, "0.0.0.0", () => {
   console.log("  🏛️  ReMemória — Servidor iniciado!");
   console.log(`  📡  Local: http://localhost:${PORT}`);
   console.log(`  🤖  IA: ${GEMINI_MODEL}`);
-  console.log("  Pressione Ctrl+C para encerrar.");
   console.log("════════════════════════════════════════");
-
-  const { exec } = require("child_process");
-  const url = `http://localhost:${PORT}`;
-  const cmd =
-    process.platform === "win32"  ? `start ${url}` :
-    process.platform === "darwin" ? `open ${url}`  :
-    `xdg-open ${url}`;
-  setTimeout(() => exec(cmd), 800);
 });
