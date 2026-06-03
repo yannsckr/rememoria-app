@@ -469,10 +469,18 @@ function openModal(p) {
     }
   }
   
-  const cfgCat = CATEGORIAS.find(c => c.value === p.categoria) || { emoji: "📍", label: p.categoria };
+ const cfgCat = CATEGORIAS.find(c => c.value === p.categoria) || { emoji: "📍", label: p.categoria };
   const mTags = document.getElementById("mTags");
-  if (mTags) mTags.innerHTML = `<span class="tag">${cfgCat.emoji} ${cfgCat.label}</span><span class="tag">📅 Fundado em ${p.fundado}</span><span class="tag">🏗️ ${p.estilo}</span>`;
-
+  if (mTags) {
+    let tagsHtml = `<span class="tag">${cfgCat.emoji} ${cfgCat.label}</span><span class="tag">📅 Fundado em ${p.fundado}</span><span class="tag">🏗️ ${p.estilo}</span>`;
+    
+    // NOVO: Adiciona a tag de Lei/Decreto se ela existir
+    if (p.leiDecreto) {
+      tagsHtml += `<span class="tag" style="background-color: var(--cream-dark); border: 1px solid var(--wine); color: var(--wine);">📜 ${p.leiDecreto}</span>`;
+    }
+    
+    mTags.innerHTML = tagsHtml;
+  }
   const mConserv = document.getElementById("mConservPercent");
   if (mConserv) mConserv.textContent = `Índice: ${p.conservacao || 0}%`;
 
@@ -1339,7 +1347,8 @@ function resetAdminForm() {
   document.getElementById("af-materiais").value = "";
   document.getElementById("af-tecnicas").value = "";
   document.getElementById("af-notas").value = "";
-  
+  document.getElementById("af-leidecreto").value = "";
+
   const estadoContainer = document.getElementById("estadoInputs");
   estadoContainer.innerHTML = `
     <div class="estado-input-row">
@@ -1389,6 +1398,7 @@ async function salvarPatrimonio() {
       materiais: (document.getElementById("af-materiais").value || "").trim(),
       tecnicas: (document.getElementById("af-tecnicas").value || "").trim(),
       notas: (document.getElementById("af-notas").value || "").trim(),
+      leiDecreto: (document.getElementById("af-leidecreto").value || "").trim(),
     };
 
     const existingIdx = PATRIMONIOS.findIndex(p => p.id === item.id);
@@ -1556,6 +1566,7 @@ function editPatrimonio(id) {
   document.getElementById("af-materiais").value = p.materiais || "";
   document.getElementById("af-tecnicas").value = p.tecnicas || "";
   document.getElementById("af-notas").value = p.notas || "";
+  document.getElementById("af-leidecreto").value = p.leiDecreto || "";
   document.getElementById("af-sims").value    = (p.simulacoes || []).join(", ");
   document.getElementById("af-simtags").value = (p.simResultTags || []).join(", ");
   document.getElementById("af-destaque").checked = !!p.destaque;
@@ -1742,6 +1753,7 @@ async function processarCSV() {
         materiais: obj.materiais || "",
         tecnicas: obj.tecnicas || "",
         notas: obj.notas || "",
+        leiDecreto: obj.leidecreto || "",
       };
 
       // Salva na memória local
