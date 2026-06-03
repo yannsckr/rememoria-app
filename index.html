@@ -222,6 +222,15 @@
             <div class="img-preview-wrap"><img id="prev-img" src="" alt="" class="img-preview hidden" /></div>
           </div>
           
+            <div class="admin-field">
+              <label>Imagem "antes" (comparação) — envie arquivo <span style="font-weight:400;opacity:.7">(ou cole URL)</span></label>
+              <label class="upload-btn" for="af-imgbefore-file">📷 Escolher foto</label>
+              <input type="file" id="af-imgbefore-file" accept="image/*" style="display:none" onchange="handleImgUpload(this,'af-imgbefore','prev-imgbefore')" />
+                <div class="upload-filename" id="af-imgbefore-fname"></div>
+             <input type="url" id="af-imgbefore" placeholder="https://... (opcional)" oninput="previewImg('af-imgbefore','prev-imgbefore')" />
+           <div class="img-preview-wrap"><img id="prev-imgbefore" src="" alt="" class="img-preview hidden" /></div>
+        </div>
+          
           <div class="admin-field">
             <label>Imagem "depois" (comparação) — envie arquivo <span style="font-weight:400;opacity:.7">(ou cole URL)</span></label>
             <label class="upload-btn" for="af-imgafter-file">📷 Escolher foto</label>
@@ -418,7 +427,7 @@
   <div class="modal-sheet" id="modalSheet" onclick="event.stopPropagation()">
     
     <div class="modal-img-wrap">
-      <img id="mImg" src="" alt="" />
+    <img id="mImg" src="" alt="" onclick="openFullscreen(this.src)" style="cursor: pointer;" />
       <button class="modal-back" onclick="closeModal()">←</button>
       <button class="modal-fav" id="mFavBtn" onclick="toggleFav()">☆</button>
       <button class="btn-3d" onclick="show3D()">View in 3D 🌐</button>
@@ -652,6 +661,11 @@
       Agora não
     </button>
   </div>
+</div>
+
+<div id="fullscreenOverlay" class="modal-overlay hidden" onclick="closeFullscreen(event)" style="z-index: 99999; justify-content: center; align-items: center; background: rgba(0,0,0,0.9) !important;">
+  <img id="fullscreenImg" src="" style="max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 12px; transform: scale(0.95); transition: transform 0.3s;" />
+  <button onclick="closeFullscreen()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; backdrop-filter: blur(4px);">✕</button>
 </div>
 
 </body>

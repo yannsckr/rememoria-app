@@ -590,7 +590,9 @@ function show3D() {
 function openComparacao() {
   if (!currentPatrimonio) return;
   const p = currentPatrimonio;
-  document.getElementById("cImgBefore").src = p.img;
+
+  // Altere esta linha para buscar a imgBefore. Se não existir, ele faz um fallback para a imagem principal.
+  document.getElementById("cImgBefore").src = p.imgBefore || p.img; 
   document.getElementById("cImgAfter").src  = p.imgAfter || p.img;
   document.getElementById("cDesc").textContent = p.compareDesc;
   document.getElementById("compareOverlay").classList.remove("hidden");
@@ -1348,6 +1350,12 @@ function resetAdminForm() {
   document.getElementById("af-tecnicas").value = "";
   document.getElementById("af-notas").value = "";
   document.getElementById("af-leidecreto").value = "";
+  document.getElementById("af-imgbefore").value = "";
+  previewImg("af-imgbefore", "prev-imgbefore");
+  document.getElementById("af-img-fname").innerHTML = "";
+  document.getElementById("af-imgbefore-fname").innerHTML = "";
+  document.getElementById("af-imgafter-fname").innerHTML = "";
+
 
   const estadoContainer = document.getElementById("estadoInputs");
   estadoContainer.innerHTML = `
@@ -1399,6 +1407,9 @@ async function salvarPatrimonio() {
       tecnicas: (document.getElementById("af-tecnicas").value || "").trim(),
       notas: (document.getElementById("af-notas").value || "").trim(),
       leiDecreto: (document.getElementById("af-leidecreto").value || "").trim(),
+      img: (document.getElementById("af-img").value || "").trim(),
+      imgBefore: (document.getElementById("af-imgbefore").value || "").trim(), // <- ADICIONE ESTA LINHA
+      imgAfter: (document.getElementById("af-imgafter").value || "").trim(),
     };
 
     const existingIdx = PATRIMONIOS.findIndex(p => p.id === item.id);
@@ -1558,6 +1569,7 @@ function editPatrimonio(id) {
   document.getElementById("af-lat").value     = p.lat || "";
   document.getElementById("af-lng").value     = p.lng || "";
   document.getElementById("af-img").value     = p.img || "";
+  document.getElementById("af-imgbefore").value = p.imgBefore || "";
   document.getElementById("af-imgafter").value = p.imgAfter || "";
   document.getElementById("af-desc").value    = p.desc || "";
   document.getElementById("af-comparedesc").value = p.compareDesc || "";
@@ -1571,7 +1583,9 @@ function editPatrimonio(id) {
   document.getElementById("af-simtags").value = (p.simResultTags || []).join(", ");
   document.getElementById("af-destaque").checked = !!p.destaque;
 
+
   previewImg("af-img", "prev-img");
+  previewImg("af-imgbefore", "prev-imgbefore");
   previewImg("af-imgafter", "prev-imgafter");
 
   const estadoContainer = document.getElementById("estadoInputs");
@@ -1797,4 +1811,78 @@ function mostrarMsgLote(text, type) {
   el.classList.remove("hidden");
   el.textContent = text;
   el.className = "admin-msg admin-msg-" + type;
+}
+
+function openFullscreen(src) {
+  if (!src) return;
+  const overlay = document.getElementById("fullscreenOverlay");
+  const img = document.getElementById("fullscreenImg");
+  img.src = src;
+  overlay.classList.remove("hidden");
+  setTimeout(() => img.style.transform = "scale(1)", 10);
+}
+
+function closeFullscreen(e) {
+  // Evita fechar se o usuário clicar na própria imagem
+  if (e && e.target === document.getElementById("fullscreenImg")) return;
+  document.getElementById("fullscreenImg").style.transform = "scale(0.95)";
+  setTimeout(() => {
+    document.getElementById("fullscreenOverlay").classList.add("hidden");
+  }, 150);
+}
+
+async function handleImgUpload(input, urlInputId, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const filenameId = input.id.replace("-file", "") + "-fname";
+  const fnameDiv = document.getElementById(filenameId);
+  
+  if (fnameDiv) {
+    fnameDiv.innerHTML = `<span style="color: var(--text-muted); font-style: italic;">⏳ Enviando para a nuvem pública...</span>`;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    // Separa apenas os dados da imagem (remove o cabeçalho base64)
+    const base64Data = e.target.result.split(',')[1];
+    
+    // Prepara o formulário para o ImgBB
+    const formData = new FormData();
+    formData.append("image", base64Data);
+
+    try {
+      // ⚠️ IMPORTANTE: Cole a sua chave do ImgBB logo após o sinal de igual
+      const IMGBB_API_KEY = 'c257725d385bd29be1aacbc62a831eac'; 
+      
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Pega a URL pública gerada pelo ImgBB
+        const imageUrl = data.data.url;
+        
+        // Preenche o campo invisível e exibe o preview
+        document.getElementById(urlInputId).value = imageUrl;
+        previewImg(urlInputId, previewId);
+        
+        if (fnameDiv) {
+          fnameDiv.innerHTML = `<span style="color: var(--success); font-weight: 600;">✅ Foto online:</span> <span style="color: var(--text); font-weight: 500;">${file.name}</span>`;
+        }
+      } else {
+        throw new Error("Erro na resposta do ImgBB");
+      }
+    } catch (err) {
+      console.error("Erro no upload online:", err);
+      if (fnameDiv) {
+        fnameDiv.innerHTML = `<span style="color: var(--danger); font-weight: 600;">❌ Erro ao subir foto.</span>`;
+      }
+    }
+  };
+  
+  reader.readAsDataURL(file);
 }

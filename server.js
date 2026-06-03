@@ -142,6 +142,40 @@ const server = http.createServer((req, res) => {
   });
 });
 
+// ── ROTA DE UPLOAD LOCAL DE IMAGENS ──
+  if (req.method === "POST" && req.url === "/api/upload") {
+    let chunks = [];
+    req.on("data", chunk => chunks.push(chunk));
+    req.on("end", () => {
+      const body = Buffer.concat(chunks).toString("utf8");
+      try {
+        const parsed = JSON.parse(body);
+        
+        // Remove o cabeçalho do base64 (ex: "data:image/jpeg;base64,")
+        const base64Data = parsed.data.replace(/^data:image\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        // Gera um nome único e salva na pasta uploads
+        const fileName = 'uploads/' + Date.now() + '_' + parsed.filename.replace(/[^a-zA-Z0-9.]/g, '');
+        const filePath = path.join(STATIC_DIR, fileName);
+
+        // Garante que a pasta uploads existe e salva o arquivo
+        if (!fs.existsSync(path.join(STATIC_DIR, 'uploads'))) {
+          fs.mkdirSync(path.join(STATIC_DIR, 'uploads'));
+        }
+        fs.writeFileSync(filePath, buffer);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ url: fileName })); // Retorna o caminho da foto salva
+      } catch(e) {
+        console.error("Erro ao salvar imagem:", e);
+        res.writeHead(500);
+        res.end(JSON.stringify({ error: "Erro ao salvar imagem no servidor local." }));
+      }
+    });
+    return;
+  }
+
 server.listen(PORT, "0.0.0.0", () => {
   console.log("════════════════════════════════════════");
   console.log("  🏛️  ReMemória — Servidor iniciado!");
