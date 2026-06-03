@@ -642,6 +642,14 @@ input {
   margin: 0; 
 }
 
+.nav-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%; /* Deixa a imagem perfeitamente redonda */
+  object-fit: cover;  /* Impede que a imagem fique esticada/amassada */
+  margin-top: 2px;
+}
+
 /* ══════════════════════════════════════════════
    MODAL DETALHE 
 ══════════════════════════════════════════════ */

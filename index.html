@@ -132,10 +132,11 @@
 
     <div class="admin-content">
 
-      <div class="admin-tabs">
-        <button class="admin-tab active" data-tab="novo" onclick="switchAdminTab('novo',this)">➕ Novo</button>
-        <button class="admin-tab" data-tab="lista" onclick="switchAdminTab('lista',this)">📋 Cadastrados</button>
-      </div>
+        <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="novo" onclick="switchAdminTab('novo',this)">➕ Novo</button>
+      <button class="admin-tab" data-tab="lista" onclick="switchAdminTab('lista',this)">📋 Cadastrados</button>
+      <button class="admin-tab" data-tab="lote" onclick="switchAdminTab('lote',this)">📁 Importar Lote</button>
+        </div>
 
       <div id="admin-tab-novo" class="admin-tab-content active">
 
@@ -308,6 +309,27 @@
         </div>
       </div>
 
+
+      <div id="admin-tab-lote" class="admin-tab-content">
+         <div style="margin: 20px; padding: 16px; background: var(--white); border-radius: var(--radius); box-shadow: 0 2px 10px rgba(74,15,30,.07);">
+         <div class="admin-section-title" style="margin-top: 0; margin-bottom: 6px;">Importação em Lote (CSV)</div>
+         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+      Preencha a planilha modelo, exporte como <strong>.csv</strong> e faça o upload abaixo. As imagens devem ser adicionadas posteriormente na edição individual (aba Cadastrados).
+    </p>
+
+    <div class="admin-field">
+      <label>Arquivo CSV</label>
+      <input type="file" id="csvFileInput" accept=".csv" style="padding: 8px;" />
+    </div>
+
+    <button type="button" class="btn-salvar-admin" onclick="processarCSV()" style="margin-top: 16px;">
+      <span>🚀 Processar e Salvar Lote</span>
+    </button>
+
+    <div id="admin-lote-msg" class="admin-msg hidden" style="margin-top: 16px;"></div>
+  </div>
+</div>
+
     </div>
   </section>
 
@@ -367,11 +389,10 @@
     <button class="nav-item" onclick="goTo('mapa',this)">
       <span class="nav-icon">🗺️</span>
       <span class="nav-label">Mapa</span>
-    </button>
-    <button class="nav-item nav-center" onclick="goTo('ia',this)">
-      <span class="nav-icon">🤖</span>
-      <span class="nav-label">IA</span>
-    </button>
+  <button class="nav-item nav-center" onclick="goTo('ia',this)">
+  <img src="icon-avatar-ia.png" alt="Avatar IA" class="nav-avatar" />
+  <span class="nav-label">IA</span>
+</button>
     <button class="nav-item" onclick="goTo('favoritos',this)">
       <span class="nav-icon">⭐</span>
       <span class="nav-label">Favoritos</span>

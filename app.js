@@ -408,7 +408,7 @@ function addMapMarkers(data) {
       distHtml = `<div style="font-size:11px; color:var(--wine); font-weight:700; margin-bottom:10px;">📍 ${formatDist(d)}</div>`;
     }
 
-    const popup = L.popup({ closeButton: false, maxWidth: 240, className: "rememoria-popup" }).setContent(`
+      const popup = L.popup({ closeButton: false, maxWidth: 240, className: "rememoria-popup" }).setContent(`
       <div class="map-popup">
         <div class="map-popup-img-wrap">
           <img src="${p.img}" alt="${p.nome}" onerror="this.src='https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'">
@@ -416,14 +416,8 @@ function addMapMarkers(data) {
         </div>
         <div class="map-popup-body">
           <div class="map-popup-name">${p.nome}</div>
-          <div class="map-popup-addr" style="margin-bottom: 2px;">${p.endereco}</div>
+          <div class="map-popup-addr" style="margin-bottom: 8px;">${p.endereco}</div>
           ${distHtml}
-          <div class="map-popup-conserv">
-            <div class="map-popup-conserv-bar">
-              <div style="width:${p.conservacao||0}%;background:${conservColor};height:100%;border-radius:99px;transition:width .4s"></div>
-            </div>
-            <span class="map-popup-conserv-label" style="color:${conservColor}">${p.conservacao||0}%</span>
-          </div>
         </div>
         <button class="map-popup-btn" onclick="openModalById('${p.id}')">Ver detalhes →</button>
       </div>
@@ -647,10 +641,12 @@ function renderChatbot() {
   container.innerHTML = `
     <div class="chatbot-wrap">
       <div class="chatbot-header">
-        <div class="chatbot-avatar">🤖</div>
+        <div class="chatbot-avatar" style="background: transparent; overflow: hidden;">
+          <img src="icon-avatar-ia.png" alt="Memo" style="width: 100%; height: 100%; object-fit: cover;" />
+        </div>
         <div class="chatbot-header-info">
-          <h4>Assistente ReMemória</h4>
-          <span>Pergunte sobre os patrimônios</span>
+          <h4>Memo</h4>
+          <span>Seu guia de exploração histórica</span>
         </div>
       </div>
       <div class="chatbot-patrimonio-selector">
@@ -667,7 +663,7 @@ function renderChatbot() {
         <button class="chat-suggestion" onclick="sendChatSuggestion('Como chego até lá?')">📍 Como chegar</button>
       </div>
       <div class="chatbot-messages" id="chatMessages">
-        <div class="chat-msg bot">Olá! Sou o assistente do ReMemória. Selecione um patrimônio acima e me faça perguntas sobre sua história, estado de conservação ou como visitar! 🏛️</div>
+        <div class="chat-msg bot">Olá! Eu sou o Memo, seu guia virtual. Escolha um patrimônio aqui em cima e vamos explorar a história dele juntos! 🏛️✨</div>
       </div>
       <div class="chatbot-input-row">
         <input class="chatbot-input" id="chatInput" type="text" placeholder="Pergunte sobre o patrimônio..." onkeydown="if(event.key==='Enter') sendChat()" />
@@ -699,9 +695,9 @@ function selectChatpatrimonio(id) {
   if (!msgs) return;
   
   if (chatSelectedPatrimonio) {
-    msgs.innerHTML = `<div class="chat-msg bot">Ótimo! Agora posso te contar tudo sobre <strong>${chatSelectedPatrimonio.nome}</strong>. O que você quer saber? 🏛️</div>`;
+    msgs.innerHTML = `<div class="chat-msg bot">Excelente escolha! O que você quer descobrir sobre <strong>${chatSelectedPatrimonio.nome}</strong>? Pode me perguntar qualquer curiosidade! 🗺️</div>`;
   } else {
-    msgs.innerHTML = `<div class="chat-msg bot">Selecione um patrimônio para começarmos! 😊</div>`;
+    msgs.innerHTML = `<div class="chat-msg bot">Para começarmos nossa viagem no tempo, selecione um patrimônio acima! 😊</div>`;
   }
 }
 
@@ -1660,4 +1656,133 @@ async function compartilharPatrimonio() {
       alert("Link para compartilhar: " + link);
     }
   }
+}
+
+// ══════════════════════════════════════════════
+// IMPORTAÇÃO EM LOTE (CSV)
+// ══════════════════════════════════════════════
+async function processarCSV() {
+  const fileInput = document.getElementById("csvFileInput");
+  const msgEl = document.getElementById("admin-lote-msg");
+
+  if (!fileInput.files.length) {
+    mostrarMsgLote("Por favor, selecione um arquivo CSV.", "error");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = async (e) => {
+    const text = e.target.result;
+    
+    // Divide por linhas
+    const linhas = text.split('\n').filter(l => l.trim() !== "");
+
+    if (linhas.length < 2) {
+      mostrarMsgLote("O arquivo parece estar vazio ou sem dados preenchidos.", "error");
+      return;
+    }
+
+    // Lê o cabeçalho (padrão de exportação do Sheets usa vírgula)
+    const cabecalho = linhas[0].split(',').map(c => c.trim().toLowerCase());
+    let importados = 0;
+    let erros = 0;
+
+    mostrarMsgLote("Processando importação... Por favor, aguarde.", "info");
+
+    // Itera sobre as linhas do CSV (ignorando o cabeçalho)
+    for (let i = 1; i < linhas.length; i++) {
+      // Regex para separar por vírgula, mas ignorar vírgulas dentro de aspas duplas (textos de descrição)
+      const valores = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+
+      if (valores.length < 2) continue;
+
+      const obj = {};
+      cabecalho.forEach((col, index) => {
+        obj[col] = valores[index] || "";
+      });
+
+      if (!obj.nome) { erros++; continue; }
+
+      // Se não enviou ID, cria um slug automático com base no nome
+      const novoId = obj.id || obj.nome.toLowerCase().replace(/[^a-z0-9]+/gi, '-');
+
+      // Traduz o campo de estado da sintaxe da planilha (ex: green:Estrutura Intacta|yellow:Pintura Desbotada)
+      let arrayEstado = [{ dot: "green", label: "Estrutura: Boa" }];
+      if (obj.estado) {
+        arrayEstado = obj.estado.split('|').map(item => {
+          const [dot, label] = item.split(':');
+          return { 
+            dot: dot ? dot.trim().toLowerCase() : "green", 
+            label: label ? label.trim() : "" 
+          };
+        }).filter(e => e.label);
+      }
+
+      // Monta o objeto no padrão rigoroso do ReMemória
+      const item = {
+        id: novoId,
+        nome: obj.nome,
+        endereco: obj.endereco,
+        categoria: obj.categoria || 'historico',
+        fundado: obj.fundado,
+        estilo: obj.estilo,
+        img: "", // Vazias de propósito, conforme sua instrução
+        imgAfter: "",
+        desc: obj.desc,
+        compareDesc: obj.comparedesc,
+        conservacao: parseInt(obj.conservacao) || 70,
+        destaque: obj.destaque === "true" || obj.destaque === "1" || obj.destaque.toLowerCase() === "sim",
+        simulacoes: obj.simulacoes ? obj.simulacoes.split(',').map(s => s.trim()) : [],
+        simResultTags: obj.simresulttags ? obj.simresulttags.split(',').map(s => s.trim()) : [],
+        estado: arrayEstado,
+        lat: parseFloat(obj.lat) || 0,
+        lng: parseFloat(obj.lng) || 0,
+        materiais: obj.materiais || "",
+        tecnicas: obj.tecnicas || "",
+        notas: obj.notas || "",
+      };
+
+      // Salva na memória local
+      const existingIdx = PATRIMONIOS.findIndex(p => p.id === item.id);
+      if (existingIdx >= 0) PATRIMONIOS[existingIdx] = item;
+      else PATRIMONIOS.push(item);
+
+      // Salva no banco de dados (Firebase)
+      if (window._db) {
+        try {
+          const { doc, setDoc } = window._fbModules;
+          await setDoc(doc(window._db, "patrimonios", item.id), item);
+          importados++;
+        } catch(err) {
+          console.warn("Erro ao salvar no Firebase:", err);
+          erros++;
+        }
+      } else {
+        importados++;
+      }
+    }
+
+    mostrarMsgLote(`✅ Importação concluída! ${importados} salvos, ${erros} ignorados/erros.`, "success");
+    
+    // Atualiza a interface gráfica com os novos dados
+    renderHome();
+    if (typeof addMapMarkers === "function") addMapMarkers(PATRIMONIOS);
+    if (typeof loadAdminList === "function") loadAdminList();
+    if (typeof updateChatbotOptions === "function") updateChatbotOptions();
+    
+    // Limpa o input
+    fileInput.value = "";
+  };
+
+  reader.onerror = () => mostrarMsgLote("Erro ao ler o arquivo.", "error");
+  reader.readAsText(file);
+}
+
+function mostrarMsgLote(text, type) {
+  const el = document.getElementById("admin-lote-msg");
+  el.classList.remove("hidden");
+  el.textContent = text;
+  el.className = "admin-msg admin-msg-" + type;
 }
