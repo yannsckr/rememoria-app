@@ -3,245 +3,214 @@
    Paleta: Vinho escuro · Dourado · Creme
 ═══════════════════════════════════════════════ */
 
-/* O seletor :root define variáveis globais (custom properties) que podem ser usadas em todo o arquivo CSS. 
-   Isso facilita a mudança de cores, fontes e tamanhos em um só lugar. */
 :root {
-  /* Cores da marca */
-  --wine:       #6B1A2A; /* Vinho principal */
-  --wine-dark:  #4A0F1E; /* Vinho escuro para fundos e cabeçalhos */
-  --wine-mid:   #7D2035; /* Vinho intermediário para gradientes */
-  --gold:       #C4973A; /* Dourado principal para destaques e botões */
-  --gold-light: #D4A84B; /* Dourado claro para efeitos de hover (passar o mouse) */
-  --cream:      #F5F0E8; /* Creme claro para o fundo do aplicativo */
-  --cream-dark: #EDE5D5; /* Creme escuro para bordas e fundos secundários */
+  --wine:       #6B1A2A; 
+  --wine-dark:  #4A0F1E; 
+  --wine-mid:   #7D2035; 
+  --gold:       #C4973A; 
+  --gold-light: #D4A84B; 
+  --cream:      #F5F0E8; 
+  --cream-dark: #EDE5D5; 
   
-  /* Cores de texto e utilitárias */
-  --text:       #1A0A0F; /* Cor do texto principal (quase preto) */
-  --text-muted: #6B5A5F; /* Cor do texto secundário (cinza escuro/vinho desbotado) */
-  --white:      #FFFFFF; /* Branco puro */
+  --text:       #1A0A0F; 
+  --text-muted: #6B5A5F; 
+  --white:      #FFFFFF; 
   
-  /* Cores de feedback (sucesso, aviso, erro) */
-  --success:    #3A7D44; /* Verde para sucesso ou bom estado */
-  --warn:       #C4973A; /* Amarelo/Dourado para avisos ou estado médio */
-  --danger:     #C43A3A; /* Vermelho para erros ou estado ruim */
+  --success:    #3A7D44; 
+  --warn:       #C4973A; 
+  --danger:     #C43A3A; 
 
-  /* Bordas arredondadas padrão */
-  --radius:    16px; /* Arredondamento maior para cards e modais */
-  --radius-sm: 8px;  /* Arredondamento menor para botões e tags */
+  --radius:    16px; 
+  --radius-sm: 8px;  
   
-  /* Sombras padrão para dar profundidade aos elementos */
-  --shadow:    0 4px 24px rgba(74,15,30,.15); /* Sombra suave */
-  --shadow-lg: 0 12px 40px rgba(74,15,30,.25); /* Sombra mais forte/larga */
+  --shadow:    0 4px 24px rgba(74,15,30,.15); 
+  --shadow-lg: 0 12px 40px rgba(74,15,30,.25); 
 
-  /* Fontes do projeto */
-  --font-display: 'Cormorant Garamond', Georgia, serif; /* Fonte serifada para títulos elegantes */
-  --font-body:    'DM Sans', sans-serif; /* Fonte sem serifa para textos comuns e legibilidade */
+  --font-display: 'Cormorant Garamond', Georgia, serif; 
+  --font-body:    'DM Sans', sans-serif; 
 
-  /* Alturas padrão */
-  --nav-h: 72px; /* Altura da barra de navegação inferior */
-  --header-h: 0px; /* Altura do cabeçalho (atualmente zerada) */
+  --nav-h: 72px; 
+  --header-h: 0px; 
 }
 
-/* ── Reset ── */
-/* Seleciona todos os elementos e pseudo-elementos para aplicar o box-sizing.
-   Isso faz com que o padding e a borda não aumentem o tamanho total do elemento. */
 *, *::before, *::after { 
   box-sizing: border-box; 
-  margin: 0; /* Zera a margem padrão do navegador */
-  padding: 0; /* Zera o preenchimento padrão do navegador */
+  margin: 0; 
+  padding: 0; 
 }
 
-/* Garante que a página ocupe 100% da altura da tela e esconde a rolagem global (a rolagem será feita internamente) */
 html, body { 
   height: 100%; 
   overflow: hidden; 
+  touch-action: manipulation; /* <-- ADICIONE ESTA LINHA: Bloqueia o zoom de dois cliques */
 }
 
-/* Estilos base para a tag <body> */
 body {
-  font-family: var(--font-body); /* Aplica a fonte padrão definida nas variáveis */
-  background: var(--cream); /* Fundo creme */
-  color: var(--text); /* Cor do texto principal */
-  -webkit-font-smoothing: antialiased; /* Suaviza a renderização das fontes no macOS/iOS */
+  font-family: var(--font-body); 
+  background: var(--cream); 
+  color: var(--text); 
+  -webkit-font-smoothing: antialiased; 
 }
 
-/* Remove estilos padrão de botões HTML para que possam ser estilizados do zero */
 button { 
-  cursor: pointer; /* Muda o cursor para a mãozinha */
+  cursor: pointer; 
   border: none; 
   background: none; 
-  font-family: inherit; /* Herda a fonte do elemento pai */
+  font-family: inherit; 
 }
 
-/* Garante que as imagens não ultrapassem a largura do seu contêiner e se comportem como blocos */
 img { 
   display: block; 
   max-width: 100%; 
 }
 
-/* Faz com que os campos de input herdem a fonte padrão em vez da fonte padrão de formulários do navegador */
 input { 
   font-family: inherit; 
 }
 
-/* Classe utilitária para esconder elementos rapidamente usando !important para forçar a regra */
 .hidden { 
   display: none !important; 
 }
 
 /* ══════════════════════════════════════════════
-   SPLASH (Tela de carregamento)
+   SPLASH
 ══════════════════════════════════════════════ */
 #splash {
-  position: fixed; inset: 0; /* Fixa na tela inteira (top, right, bottom, left = 0) */
-  z-index: 999; /* Fica acima de tudo na página */
-  background: var(--wine-dark); /* Fundo vinho escuro */
-  display: flex; align-items: center; justify-content: center; /* Centraliza o conteúdo no meio da tela */
+  position: fixed; inset: 0; 
+  z-index: 999; 
+  background: var(--wine-dark); 
+  display: flex; align-items: center; justify-content: center; 
 }
 
-/* Anima a entrada do conteúdo do splash (esmaecimento e movimento para cima) */
 .splash-inner { 
   text-align: center; 
   animation: splashIn .6s ease both; 
 }
 
-/* Ícone central do splash */
 .splash-icon { 
   font-size: 56px; 
   margin-bottom: 12px; 
 }
 
-/* Título principal "ReMemória" no splash */
 .splash-title {
   font-family: var(--font-display);
   font-size: 42px; 
   color: var(--white);
-  letter-spacing: .04em; /* Espaçamento entre letras */
+  letter-spacing: .04em; 
 }
 
-/* Subtítulo abaixo do título */
 .splash-sub { 
   color: var(--gold); 
   font-size: 14px; 
   letter-spacing: .15em; 
-  text-transform: uppercase; /* Deixa tudo em maiúsculas */
+  text-transform: uppercase; 
   margin-top: 4px; 
 }
 
-/* Contêiner da barra de carregamento */
 .splash-loader {
   margin-top: 36px;
   width: 48px; 
   height: 3px; 
-  background: rgba(255,255,255,.15); /* Fundo da barra semi-transparente */
-  border-radius: 99px; /* Bordas totalmente arredondadas */
-  overflow: hidden; /* Corta o que sair da borda */
-  margin-inline: auto; /* Centraliza horizontalmente */
+  background: rgba(255,255,255,.15); 
+  border-radius: 99px; 
+  overflow: hidden; 
+  margin-inline: auto; 
 }
 
-/* A parte que se move dentro da barra de carregamento */
 .splash-loader span {
   display: block; 
   height: 100%; 
-  width: 40%; /* Ocupa 40% da largura do contêiner */
-  background: var(--gold); /* Cor dourada */
+  width: 40%; 
+  background: var(--gold); 
   border-radius: 99px;
-  animation: loader 1.4s ease-in-out infinite; /* Chama a animação 'loader' em loop (infinite) */
+  animation: loader 1.4s ease-in-out infinite; 
 }
 
-/* Keyframes da animação da barra de loading (vai da esquerda para a direita) */
 @keyframes loader {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(350%); }
 }
 
-/* Keyframes da animação de entrada do splash */
 @keyframes splashIn {
-  from { opacity: 0; transform: translateY(20px); } /* Começa invisível e um pouco abaixo */
-  to   { opacity: 1; transform: none; } /* Termina visível na posição original */
+  from { opacity: 0; transform: translateY(20px); } 
+  to   { opacity: 1; transform: none; } 
 }
 
 /* ══════════════════════════════════════════════
-   APP SHELL (Estrutura principal do app)
+   APP SHELL
 ══════════════════════════════════════════════ */
 #app {
-  position: fixed; inset: 0; /* Ocupa toda a tela */
-  display: flex; flex-direction: column; /* Organiza os filhos em uma coluna vertical */
+  position: fixed; inset: 0; 
+  display: flex; flex-direction: column; 
   background: var(--cream);
 }
 
-/* ── SCREENS (Telas individuais do app) ── */
 .screen {
-  display: none; /* Esconde todas as telas por padrão */
-  flex: 1; /* Ocupa o espaço restante da tela (entre header e footer) */
-  overflow-y: auto; /* Permite rolar a tela verticalmente se o conteúdo for grande */
-  -webkit-overflow-scrolling: touch; /* Melhora a rolagem em dispositivos iOS */
-  padding-bottom: calc(var(--nav-h) + 12px); /* Dá espaço no fundo para a barra de navegação inferior não cobrir o conteúdo */
+  display: none; 
+  flex: 1; 
+  overflow-y: auto; 
+  -webkit-overflow-scrolling: touch; 
+  padding-bottom: calc(var(--nav-h) + 12px); 
 }
 
-/* Mostra apenas a tela que tem a classe 'active' */
 .screen.active { 
   display: flex; 
   flex-direction: column; 
 }
 
 /* ══════════════════════════════════════════════
-   HOME HEADER (Cabeçalho da tela inicial)
+   HOME HEADER
 ══════════════════════════════════════════════ */
 .home-header {
   background: #4A0A17; 
   padding: 80px 20px 30px;
-  position: sticky; /* Trava o cabeçalho no topo */
+  position: sticky; 
   top: 0;
   flex-shrink: 0;
-  z-index: 1; /* Fica na camada do fundo */
+  z-index: 1; 
 }
 
 .home-header::before {
-  display: none; /* Regra desativada (comentada no original como "Removendo o brilho antigo") */
+  display: none; 
 }
 
-/* Layout do topo do cabeçalho (saudação e botão) */
 .header-top {
   display: flex; justify-content: space-between; align-items: flex-start;
   padding-bottom: 24px;
 }
 
-/* Texto "Bom dia, Nome" */
 .header-greeting { 
   color: #C4973A; 
   font-size: 16px; 
   font-family: var(--font-display); 
   font-style: italic; 
-  font-weight: 700; /* Devolve o negrito */
-  letter-spacing: 0; /* Conserta o espaçamento */
+  font-weight: 700; 
+  letter-spacing: 0; 
   margin-bottom: 2px;
 }
 
-/* Nome da marca no cabeçalho */
 .header-brand {
   font-family: var(--font-display);
   font-size: 34px; 
   color: var(--white);
   letter-spacing: -0.02em;
-  line-height: 1.1; /* Ajusta a altura da linha para ficar mais compacto */
+  line-height: 1.1; 
 }
 
-/* Botões com ícones arredondados (ex: notificações) */
 .btn-icon {
   width: 40px; height: 40px;
-  border-radius: 50%; /* Faz o botão ficar redondo */
-  background: rgba(255,255,255,.12); /* Fundo branco semi-transparente */
+  border-radius: 50%; 
+  background: rgba(255,255,255,.12); 
   display: flex; align-items: center; justify-content: center;
   font-size: 18px;
-  backdrop-filter: blur(6px); /* Efeito de vidro fosco no fundo */
-  transition: background .2s; /* Suaviza a mudança de cor ao passar o mouse */
+  backdrop-filter: blur(6px); 
+  transition: background .2s; 
 }
 .btn-icon:hover { 
-  background: rgba(255,255,255,.22); /* Fica mais claro ao passar o mouse */
+  background: rgba(255,255,255,.22); 
 }
 
-/* ── HOME HERO (Bloco de destaque na tela inicial) ── */
+/* ── HOME HERO ── */
 .home-hero {
   background: linear-gradient(135deg, #681020 20%, #3C0E1B 100%);
   padding: 26px 20px 30px;
@@ -249,32 +218,30 @@ input {
   overflow: hidden;
   flex-shrink: 0;
   margin: 0;
-  margin-top: -30px; /* Puxa para cima para fechar o buraco claro */
+  margin-top: -30px; 
   border-radius: 30px 30px 0px 0px;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-  z-index: 10; /* Passa por cima do cabeçalho fixo ao rolar */
+  z-index: 10; 
 }
 
 .home-hero::before {
-  display: none; /* Desativa pseudo-elemento */
+  display: none; 
 }
 
-/* Cria uma forma visual (bolha decorativa) no lado direito do Hero */
 .home-hero::after {
-  content: ''; /* Necessário para pseudo-elementos aparecerem */
+  content: ''; 
   position: absolute;
   right: -60px; 
   top: 5%;
   transform: translateY(-50%);
   width: 150px; 
   height: 140px;
-  border-radius: 180px; /* Deixa totalmente redondo */
+  border-radius: 180px; 
   background: #6a1a2b; 
-  pointer-events: none; /* O usuário não consegue clicar nisso */
+  pointer-events: none; 
   opacity: 0.95;
 }
 
-/* Tag/Bagde indicadora (ex: "Destaque" ou categoria) */
 .hero-badge {
   display: inline-block;
   background: #b88d36;
@@ -283,13 +250,12 @@ input {
   letter-spacing: .12em; 
   text-transform: uppercase;
   padding: 6px 14px; 
-  border-radius: 99px; /* Formato de pílula */
+  border-radius: 99px; 
   margin-bottom: 14px;
   position: relative; 
-  z-index: 2; /* Fica acima da bolha decorativa */
+  z-index: 2; 
 }
 
-/* Título dentro do Hero */
 .hero-title {
   font-family: var(--font-display);
   font-size: 32px; color: #f3f3f3;
@@ -298,7 +264,6 @@ input {
   z-index: 2;
 }
 
-/* Subtítulo dentro do Hero */
 .hero-sub { 
   color: rgba(255,255,255,.8); 
   font-size: 15px; 
@@ -315,28 +280,9 @@ input {
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(74,15,30,.08);
   position: relative;
-  z-index: 10; /* Passa por cima do cabeçalho fixo ao rolar */
+  z-index: 10; 
 }
 
-/* NOTA: Há código duplicado aqui para .btn-icon, .hero-badge, .hero-title, .hero-sub no arquivo original.
-   Eles sobreescrevem parcialmente as regras acima (ex: font-size de hero-title muda de 32px para 36px aqui). */
-.hero-badge {
-  display: inline-block;
-  background: var(--gold);
-  color: var(--wine-dark);
-  font-size: 10px; font-weight: 600;
-  letter-spacing: .12em; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 4px;
-  margin-bottom: 10px;
-}
-.hero-title {
-  font-family: var(--font-display);
-  font-size: 36px; color: var(--white);
-  line-height: 1.1; margin-bottom: 6px;
-}
-.hero-sub { color: rgba(255,255,255,.65); font-size: 14px; margin-bottom: 0; }
-
-/* Contêiner do campo de busca visual */
 .search-bar {
   display: flex; align-items: center; gap: 10px;
   background: var(--white);
@@ -346,40 +292,36 @@ input {
   border: 1px solid var(--cream-dark);
 }
 
-/* Ícone de lupa dentro do input */
 .search-icon { 
   font-size: 16px; 
   opacity: .5; 
   flex-shrink: 0; 
 }
 
-/* O campo de input digitável em si */
 .search-bar input {
-  flex: 1; /* Ocupa todo o espaço restante dentro do contêiner */
+  flex: 1; 
   border: none; 
-  outline: none; /* Remove a borda azul padrão de foco do navegador */
+  outline: none; 
   font-size: 16px; 
   background: transparent; 
   color: var(--text);
 }
 
-.search-bar input::placeholder { color: var(--text-muted); } /* Cor do texto de dica no input */
+.search-bar input::placeholder { color: var(--text-muted); } 
 
 /* ══════════════════════════════════════════════
-   HOME CONTENT (Conteúdo principal abaixo da busca)
+   HOME CONTENT
 ══════════════════════════════════════════════ */
 .home-content { 
   padding: 24px 20px 0; 
   flex: 1; 
-  background: var(--cream); /* Garante fundo sólido na rolagem */
+  background: var(--cream); 
   position: relative;
-  z-index: 10; /* Passa por cima do cabeçalho fixo ao rolar */
+  z-index: 10; 
 }
 
-/* Margem inferior para separar seções (ex: "Destaques", "Perto de você") */
 .section { margin-bottom: 28px; }
 
-/* Título de cada seção */
 .section-title {
   font-family: var(--font-display);
   font-size: 22px; font-weight: 600;
@@ -387,47 +329,41 @@ input {
   margin-bottom: 14px;
 }
 
-/* ── Featured Cards (Carrossel horizontal de destaques) ── */
 .cards-row {
   display: flex; gap: 12px;
-  overflow-x: auto; /* Permite rolagem horizontal se tiver muitos cards */
+  overflow-x: auto; 
   padding-bottom: 4px;
-  scrollbar-width: none; /* Esconde a barra de rolagem no Firefox */
+  scrollbar-width: none; 
 }
-.cards-row::-webkit-scrollbar { display: none; } /* Esconde a barra de rolagem no Chrome/Safari */
+.cards-row::-webkit-scrollbar { display: none; } 
 
-/* Estilo individual de cada card em destaque */
 .feat-card {
-  flex: 0 0 220px; /* Não encolhe, não cresce, tamanho fixo de 180px de largura */
+  flex: 0 0 220px; 
   border-radius: var(--radius);
-  overflow: hidden; /* Garante que a imagem não vaze dos cantos arredondados */
+  overflow: hidden; 
   position: relative;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition: transform .2s, box-shadow .2s; /* Suaviza animações no hover */
+  transition: transform .2s, box-shadow .2s; 
 }
 
-/* Efeito ao passar o mouse: levanta o card e aumenta a sombra */
 .feat-card:hover { 
   transform: translateY(-3px); 
   box-shadow: var(--shadow-lg); 
 }
 
-/* Imagem de fundo do card */
 .feat-card img {
   width: 100%; height: 170px; 
-  object-fit: cover; /* Corta a imagem para caber perfeitamente no espaço sem distorcer */
+  object-fit: cover; 
   transition: transform .4s;
 }
 
-/* Efeito de zoom leve na imagem ao passar o mouse no card */
 .feat-card:hover img { transform: scale(1.04); }
 
-/* Área escura por cima da base da imagem para o texto ficar legível */
 .feat-card-info {
   position: absolute; bottom: 0; left: 0; right: 0;
   padding: 28px 12px 12px;
-  background: linear-gradient(to top, rgba(74,15,30,.85) 0%, transparent 100%); /* Degradê escuro para transparente */
+  background: linear-gradient(to top, rgba(74,15,30,.85) 0%, transparent 100%); 
 }
 
 .feat-card-name {
@@ -438,12 +374,10 @@ input {
   font-size: 11px; color: rgba(255,255,255,.7); margin-top: 2px; 
 }
 
-/* ── Nearby List (Lista vertical de locais próximos) ── */
 .list-items { 
   display: flex; flex-direction: column; gap: 10px; 
 }
 
-/* Estilo de cada item da lista */
 .list-item {
   display: flex; align-items: center; gap: 14px;
   background: var(--white);
@@ -458,39 +392,33 @@ input {
   transform: translateY(-2px); 
 }
 
-/* Miniatura da imagem na lista */
 .list-img {
   width: 60px; height: 60px;
   border-radius: 10px; 
   object-fit: cover;
-  flex-shrink: 0; /* Impede que a imagem encolha se o texto for muito grande */
+  flex-shrink: 0; 
 }
 
-/* Contêiner dos textos da lista */
 .list-info { 
-  flex: 1; /* Ocupa o espaço livre */
-  min-width: 0; /* Evita bug do flexbox que faz o texto vazar da tela */
+  flex: 1; 
+  min-width: 0; 
 }
 .list-name { font-weight: 600; font-size: 14px; color: var(--text); }
 .list-addr { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-/* Distância (ex: 2km) */
 .list-dist {
   font-size: 11px; color: var(--wine);
   margin-top: 4px; display: flex; align-items: center; gap: 3px;
 }
-/* Setinha para a direita na lista */
 .list-arrow { color: var(--cream-dark); font-size: 18px; }
 
 /* ══════════════════════════════════════════════
-   PAGE HEADER (Cabeçalho genérico de outras páginas)
+   PAGE HEADER
 ══════════════════════════════════════════════ */
 .page-header {
-  background: linear-gradient(135deg, #681020 20%, #3C0E1B 100%); /* Mesmo degrade do destaque */
+  background: linear-gradient(135deg, #681020 20%, #3C0E1B 100%); 
   padding: 52px 20px 16px;
   display: flex; align-items: center; justify-content: space-between;
-  
-  /* Z-index mantido para garantir que fique em cima de eventuais sombras */
   z-index: 10;
 }
 
@@ -501,21 +429,19 @@ input {
 .map-controls { display: flex; gap: 8px; }
 
 /* ══════════════════════════════════════════════
-   MAPA (Estilos para a tela do Mapa)
+   MAPA
 ══════════════════════════════════════════════ */
-/* Barra horizontal de filtros (Botões de categoria) */
 .map-filters {
   display: flex; gap: 8px; 
-  padding: 10px 20px 20px; /* Alinhamento lateral corrigido e mais respiro no fundo */
-  background: #4A0A17; /* Mesma cor do cabeçalho para criar um bloco unificado */
+  padding: 10px 20px 20px; 
+  background: #4A0A17; 
   overflow-x: auto; scrollbar-width: none;
 }
 
 .map-filters::-webkit-scrollbar { display: none; }
 
-/* Botões de filtro (Histórico, Cultural, etc) */
 .filter-btn {
-  flex: 0 0 auto; /* Evita que o botão quebre em duas linhas */
+  flex: 0 0 auto; 
   background: rgba(255,255,255,.12);
   color: var(--white);
   border: 1px solid rgba(255,255,255,.2);
@@ -526,7 +452,6 @@ input {
   transition: all .2s;
 }
 
-/* Estado ativo do botão de filtro */
 .filter-btn.active {
   background: var(--gold);
   border-color: var(--gold);
@@ -534,59 +459,41 @@ input {
   font-weight: 600;
 }
 
-/* Remove a rolagem da página e o espaçamento inferior apenas na aba do mapa */
-/* ── Ajuste da tela do mapa ── */
-#screen-mapa {
-  height: 100%;
-  padding-bottom: 0; 
-  overflow: hidden; 
-  position: relative;
-  background: #4A0A17; /* Isso elimina a fresta branca caso o mapa demore a carregar ou mude de tamanho */
-}
-/* Correção para o menu flutuante não vazar fundo branco */
-#screen-mapa ~ .bottom-nav.nav-hidden,
+#screen-mapa.active ~ .bottom-nav.nav-hidden,
 #app:has(#screen-mapa.active) .bottom-nav.nav-hidden {
-  transform: translateY(0); /* Mantém o menu preso à base na tela de mapa */
-  width: 100%; /* Opcional: faz ele cobrir toda a extensão para não vazar o mapa nas quinas */
+  transform: translateY(0); 
+  width: 100%; 
   border-radius: 0;
 }
+
 #map {
   flex: 1; 
   width: 100%;
-  height: calc(100vh - 120px); /* Ajuste os 120px com base na soma da altura do seu topo + filtros */
+  height: calc(100vh - 120px); 
   position: relative;
   z-index: 2; 
 }
 
-/* Contêiner principal da biblioteca de mapa (Leaflet/Google Maps) */
-#map {
-  flex: 1; /* Preenche o resto da tela */
-  z-index: 1;
-}
-
-/* Marcadores personalizados no mapa (Formato de gota/pino) */
 .custom-marker {
   width: 36px; height: 36px;
-  border-radius: 50% 50% 50% 0; /* Arredonda 3 pontas, deixa 1 reta (formato gota) */
-  transform: rotate(-45deg); /* Gira para a ponta reta apontar para baixo */
+  border-radius: 50% 50% 50% 0; 
+  transform: rotate(-45deg); 
   display: flex; align-items: center; justify-content: center;
   border: 2px solid white;
   box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 
-/* Gira o conteúdo interno de volta para ficar reto (desfazendo os -45deg do pai) */
 .custom-marker span {
   transform: rotate(45deg);
   font-size: 16px;
 }
 
-/* Cores específicas baseadas na categoria do marcador */
 .marker-historico { background: var(--wine); }
-.marker-cultural   { background: #7D3A8A; } /* Roxo */
-.marker-natural    { background: var(--success); } /* Verde */
+.marker-cultural   { background: #7D3A8A; } 
+.marker-natural    { background: var(--success); } 
 
 /* ══════════════════════════════════════════════
-   IA SCREEN (Tela de Inteligência Artificial)
+   IA SCREEN
 ══════════════════════════════════════════════ */
 .ia-content { 
   padding: 24px 20px; 
@@ -595,20 +502,18 @@ input {
   flex: 1;
 }
 
-/* Barra de pontuação visual (estado de conservação) */
 .score-bar {
   flex: 1; height: 4px; background: var(--cream-dark);
   border-radius: 99px; overflow: hidden;
 }
-.score-fill { height: 100%; border-radius: 99px; } /* O preenchimento interno que cresce */
-.score-good { background: var(--success); } /* Cor verde */
-.score-mid  { background: var(--warn); } /* Cor amarela */
-.score-bad  { background: var(--danger); } /* Cor vermelha */
+.score-fill { height: 100%; border-radius: 99px; } 
+.score-good { background: var(--success); } 
+.score-mid  { background: var(--warn); } 
+.score-bad  { background: var(--danger); } 
 
 /* ══════════════════════════════════════════════
    FAVORITOS
 ══════════════════════════════════════════════ */
-/* Estilo para quando a lista de favoritos está vazia */
 .empty-state {
   text-align: center; padding: 60px 20px;
   color: var(--text-muted);
@@ -616,18 +521,17 @@ input {
 .empty-icon { font-size: 48px; margin-bottom: 12px; }
 
 /* ══════════════════════════════════════════════
-   PERFIL (Tela de Usuário)
+   PERFIL
 ══════════════════════════════════════════════ */
 .perfil-content { padding: 32px 20px; }
 
-/* Foto/Ícone de Perfil */
 .perfil-avatar {
   width: 88px; height: 88px;
   background: var(--wine-dark);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 40px;
-  margin: 0 auto 16px; /* Centraliza horizontalmente e dá margem inferior */
+  margin: 0 auto 16px; 
   box-shadow: var(--shadow-lg);
 }
 
@@ -637,7 +541,6 @@ input {
 }
 .perfil-sub { text-align: center; color: var(--text-muted); font-size: 13px; margin-top: 4px; }
 
-/* Bloco de estatísticas (ex: locais visitados) */
 .perfil-stats {
   display: flex; justify-content: center; gap: 32px;
   margin: 28px 0;
@@ -647,17 +550,16 @@ input {
   box-shadow: var(--shadow);
 }
 .stat { text-align: center; }
-.stat-n { /* Número da estatística */
+.stat-n { 
   display: block;
   font-family: var(--font-display);
   font-size: 32px; color: var(--wine);
   font-weight: 700;
 }
-.stat-l { /* Rótulo da estatística (ex: "Visitados") */
+.stat-l { 
   font-size: 11px; color: var(--text-muted); 
 }
 
-/* Lista de opções do perfil (Menu) */
 .perfil-menu { display: flex; flex-direction: column; gap: 8px; }
 .perfil-item {
   background: var(--white);
@@ -672,13 +574,10 @@ input {
 .perfil-item:hover { background: var(--cream-dark); }
 
 /* ══════════════════════════════════════════════
-   BOTTOM NAV (Animação Flutuante / Pílula)
-══════════════════════════════════════════════ */
-/* ══════════════════════════════════════════════
-   BOTTOM NAV (Menu Menor, Harmônico e Pílula)
+   BOTTOM NAV
 ══════════════════════════════════════════════ */
 .bottom-nav {
-  height: 64px; /* Diminuímos a altura geral do menu (antes era 72px) */
+  height: 64px; 
   background: var(--wine-dark);
   display: flex;
   border-top: 1px solid rgba(255,255,255,.08);
@@ -700,12 +599,11 @@ input {
   box-shadow: 0 12px 30px rgba(0,0,0,0.4);
 }
 
-/* Alinhamento dos itens padrão */
 .nav-item {
   flex: 1; 
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 4px; /* Respiro certinho entre o ícone e o texto */
+  gap: 4px; 
   color: rgba(255,255,255,.45);
   font-size: 10px; font-weight: 500;
   letter-spacing: .04em;
@@ -716,9 +614,8 @@ input {
 .nav-icon { font-size: 20px; }
 .nav-label { font-size: 10px; }
 
-/* Botão central flutuante (Ajustado para Ícone + Texto) */
 .nav-center {
-  width: 58px; height: 58px; /* Aumentamos um pouquinho para caber o texto */
+  width: 58px; height: 58px; 
   flex: 0 0 58px; 
   background: var(--gold);
   border-radius: 50%;
@@ -727,226 +624,228 @@ input {
   box-shadow: 0 -4px 16px rgba(196,151,58,.35);
   
   display: flex; 
-  flex-direction: column; /* Coloca um embaixo do outro */
+  flex-direction: column; 
   align-items: center; 
   justify-content: center;
-  gap: 1px; /* Espaço mínimo entre robô e texto */
+  gap: 1px; 
 }
 
-/* Traz o texto de volta, com um tamanho adaptado */
 .nav-center .nav-label { 
   display: block; 
   font-size: 10px; 
-  font-weight: 700; /* Deixa o IA em negrito para leitura fácil */
+  font-weight: 700; 
   margin-top: -2px;
 }
 
-/* Ajusta o tamanho do ícone para dar espaço ao texto */
 .nav-center .nav-icon { 
   font-size: 22px; 
   margin: 0; 
 }
 
 /* ══════════════════════════════════════════════
-   MODAL DETALHE (Janela que sobe de baixo para mostrar locais)
+   MODAL DETALHE 
 ══════════════════════════════════════════════ */
-/* Fundo escuro que bloqueia a tela atrás do modal */
 .modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.5);
-  z-index: 200;
-  display: flex; align-items: flex-end; /* Alinha a janela do modal na parte de baixo da tela */
-  backdrop-filter: blur(4px); /* Desfoca o fundo atrás da overlay */
+  align-items: flex-end;
+  position: fixed !important;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px);
+  z-index: 9999 !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; 
 }
-.modal-overlay.hidden { display: none; }
 
-/* A "folha" branca principal do modal */
+.modal-overlay.hidden {
+  display: none !important;
+}
+
 .modal-sheet {
-  width: 100%; max-height: 93vh; /* Ocupa no máximo 93% da tela, não cobrindo tudo */
+  width: 100%; 
+  height: 100vh; max-height: 100vh;
   background: var(--cream);
-  border-radius: 20px 20px 0 0; /* Arredonda apenas os cantos de cima */
+  border-radius: 0; 
   overflow-y: auto;
-  animation: slideUp .35s cubic-bezier(.32,.72,0,1); /* Animação suave deslizando de baixo */
+  display: flex; flex-direction: column;
+  position: relative;
+  scrollbar-width: none; 
 }
+.modal-sheet::-webkit-scrollbar { display: none; } 
 
-/* Keyframe para a animação de deslizar para cima do modal */
-@keyframes slideUp {
-  from { transform: translateY(100%); } /* Começa 100% para baixo (fora da tela) */
-  to   { transform: none; } /* Termina na posição 0 */
-}
-
-/* Aquele tracinho cinza no topo do modal que indica que ele pode ser arrastado/fechado */
-.modal-handle {
-  width: 40px; height: 4px;
-  background: rgba(0,0,0,.15);
-  border-radius: 99px;
-  margin: 10px auto 0;
-}
-
-/* Imagem de cabeçalho do modal */
 .modal-img-wrap {
-  position: relative; height: 240px;
-  overflow: hidden; margin-bottom: 0;
+  height: 320px; 
+  width: 100%;
+  position: relative; 
 }
+
 .modal-img-wrap img {
-  width: 100%; height: 100%; object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center; 
 }
 
-/* Botão de voltar (setinha superior esquerda) no modal */
-.modal-back {
-  position: absolute; top: 52px; left: 16px;
-  width: 36px; height: 36px;
-  background: rgba(0,0,0,.45);
-  color: white; border-radius: 50%;
-  font-size: 18px; backdrop-filter: blur(6px);
+/* ── CORREÇÃO AQUI: Curva, sobreposição e padding do corpo do modal ── */
+.modal-body {
+  background: var(--cream);
+  border-radius: 40px 40px 0 0;
+  margin-top: -40px;
+  padding: 40px 24px 20px;
+  position: relative;
+  z-index: 2;
+  flex: 1;
 }
 
-/* Botão de favoritar (coração superior direito) no modal */
-.modal-fav {
-  position: absolute; top: 52px; right: 16px;
-  width: 36px; height: 36px;
-  background: rgba(0,0,0,.45);
-  color: white; border-radius: 50%;
-  font-size: 18px; backdrop-filter: blur(6px);
-  transition: transform .2s;
-}
-/* Coração animado (aumenta e fica dourado) quando ativado */
-.modal-fav.active { color: var(--gold); transform: scale(1.2); }
-
-/* Pequeno botão flutuante para ver em 3D */
-.btn-3d {
-  position: absolute; bottom: 12px; right: 12px;
-  background: rgba(0,0,0,.6);
-  color: white;
-  padding: 7px 14px; border-radius: 99px;
-  font-size: 12px; font-weight: 500;
-  backdrop-filter: blur(6px);
-}
-
-.modal-body { padding: 20px; }
-.modal-body h2 {
-  font-family: var(--font-display);
-  font-size: 26px; color: var(--wine-dark);
+#mTitle {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
   margin-bottom: 6px;
+  color: var(--wine-dark);
 }
 .modal-addr {
-  display: flex; align-items: center; gap: 4px;
-  font-size: 13px; color: var(--text-muted);
-  margin-bottom: 12px;
-}
-
-/* Tags de atributos (ex: Acessível, Pet Friendly, etc) */
-.modal-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
-.tag {
-  background: var(--cream-dark);
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  margin-bottom: 20px;
   color: var(--text-muted);
-  font-size: 11px; font-weight: 500;
-  padding: 4px 10px; border-radius: 6px;
-  display: flex; align-items: center; gap: 4px;
 }
 
-/* Cards internos no modal (ex: Diagnóstico de IA) */
+.modal-tags {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 10px;
+  margin-bottom: 28px; 
+}
+
+.tag {
+  background: rgba(0,0,0,0.04);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
 .modal-card {
   background: var(--white);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 10px rgba(74,15,30,.07);
-}
-.modal-card h4 {
-  font-family: var(--font-display);
-  font-size: 17px; color: var(--wine-dark);
-  margin-bottom: 12px;
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 4px 24px rgba(74, 15, 30, 0.04);
+  margin-bottom: 16px;
+  border: 1px solid rgba(74, 15, 30, 0.03);
 }
 .card-header-row {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
 }
-.card-header-row h4 { margin-bottom: 0; }
-
-/* Emblema "IA" */
+.card-header-row h4, .modal-card h4 {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; color: var(--wine-dark); margin: 0;
+}
 .badge-ai {
-  background: var(--wine);
-  color: var(--white);
-  font-size: 10px; font-weight: 600;
-  padding: 4px 10px; border-radius: 6px;
+  background: var(--wine-dark); color: white;
+  padding: 6px 12px; border-radius: 99px; font-size: 10px; font-weight: 600;
 }
+.estado-list { display: flex; flex-direction: column; gap: 10px; }
+.estado-item { font-size: 13px; font-weight: 500; }
 
-/* Lista de estados de conservação (ex: Rachaduras, Infiltrações) */
-.estado-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.estado-item {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 12px; color: var(--text);
-}
-.dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.dot-green  { background: var(--success); }
-.dot-yellow { background: var(--warn); }
-.dot-red    { background: var(--danger); }
-
-/* Botões simuladores (filtro para visualização Antes/Depois) */
-.sim-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.sim-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .sim-btn {
-  background: var(--cream-dark);
-  color: var(--text);
-  border-radius: 99px;
-  padding: 8px 14px;
-  font-size: 12px; font-weight: 500;
-  transition: all .2s;
+  background: rgba(0,0,0,0.04); color: var(--text-muted);
+  border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 12px;
   border: 1px solid transparent;
 }
 .sim-btn.active {
-  background: var(--gold);
-  color: var(--wine-dark);
-  font-weight: 600;
-  border-color: var(--gold);
+  background: var(--gold); color: var(--wine-dark);
 }
-
-/* Botão principal (Aplicar filtro, Visualizar, etc) */
 .btn-aplicar {
-  width: 100%;
-  background: var(--gold);
-  color: var(--wine-dark);
-  border-radius: 12px;
-  padding: 14px;
-  font-size: 15px; font-weight: 600;
-  letter-spacing: .02em;
-  margin-bottom: 12px;
-  transition: filter .2s, transform .2s;
+  width: 100%; background: var(--gold) !important; color: var(--wine-dark) !important;
+  border-radius: 14px; padding: 16px; font-size: 15px; font-weight: 700;
 }
-.btn-aplicar:hover { filter: brightness(1.08); transform: translateY(-1px); } /* Levemente mais claro ao hover */
-
-.sim-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-.sim-tag {
-  font-size: 11px; color: var(--text-muted);
-  display: flex; align-items: center; gap: 4px;
-}
-
-/* Link para comparar as imagens */
 .btn-compare {
-  width: 100%; text-align: center;
-  font-size: 13px; color: var(--wine);
-  font-weight: 500; padding: 6px;
-  text-decoration: underline;
+  display: block; width: 100%; text-align: center;
+  background: none; border: none; color: var(--wine-dark);
+  font-weight: 600; font-size: 13px; margin-top: 14px;
 }
 
-/* Caixa de descrição do local */
 .modal-desc {
-  font-size: 14px; color: var(--text-muted);
-  line-height: 1.7; /* Aumenta o espaçamento das linhas para facilitar a leitura */
-  background: var(--white);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: 0 2px 10px rgba(74,15,30,.07);
+  text-align: justify !important; font-size: 14px; line-height: 1.6;
+  padding: 0; margin: 0; margin-bottom: 24px; color: var(--text-muted);
+  background: transparent; box-shadow: none;
+}
+
+.info-tech-title {
+  font-family: var(--font-display); font-size: 20px; color: var(--wine-dark);
+  margin: 32px 0 16px 4px; font-weight: 700;
+}
+.tech-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.tech-item {
+  background: var(--white); padding: 18px 20px; border-radius: 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 14px; font-weight: 600; color: var(--text);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.03); cursor: pointer;
+}
+.tech-arrow { font-size: 18px; color: var(--text-muted); }
+
+.modal-bottom-bar {
+  position: relative;
+  background: transparent;
+  padding: 24px 24px 40px; 
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  box-shadow: none;
+  border-top: none;
+  width: 100%;
+}
+
+.btn-outline-action {
+  flex: 1; background: var(--white); border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px; padding: 14px; font-size: 13px; font-weight: 600;
+  color: var(--text); display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+}
+
+.modal-back, .modal-fav {
+  position: absolute; 
+  top: 24px;
+  background: rgba(74, 15, 30, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white; width: 44px; height: 44px; border-radius: 50%;
+  font-size: 18px;
+  z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-back { left: 20px; }
+.modal-fav { right: 20px; }
+
+/* ── CORREÇÃO AQUI: Botão 3D logo acima da nova curva ── */
+.btn-3d {
+  position: absolute !important;
+  bottom: 56px !important; 
+  right: 20px !important;
+  background: #C4973A !important;
+  color: #6B1A2A !important;
+  z-index: 10;
+  padding: 8px 16px; border-radius: 99px;
+  font-size: 11px; font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* ══════════════════════════════════════════════
-   MODAL COMPARAÇÃO (Tela Antes / Depois interativa)
+   MODAL COMPARAÇÃO
 ══════════════════════════════════════════════ */
+#compareOverlay {
+  justify-content: flex-end;
+}
+
 .compare-sheet {
   width: 100%; min-height: 100vh;
   background: var(--wine-dark);
@@ -956,7 +855,7 @@ input {
 }
 .compare-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 52px 20px 16px;
+  padding: 60px 24px 20px;
 }
 .compare-header h3 {
   font-family: var(--font-display);
@@ -966,43 +865,39 @@ input {
   color: var(--white); font-size: 22px;
 }
 
-/* Slider interativo de comparação de imagens (arrastar para ver antes/depois) */
 .compare-slider-wrap {
-  padding: 0 20px;
+  padding: 0 24px;
+  margin-top: 10px;
   margin-bottom: 20px;
 }
 .compare-slider {
   position: relative;
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: hidden !important;
   height: 300px;
-  user-select: none; /* Previne selecionar imagem como texto */
-  touch-action: none; /* Controla o comportamento de toque nativo (necessário para o JS do slider funcionar bem no celular) */
+  user-select: none; 
+  touch-action: none; 
 }
 
 .compare-img {
   position: absolute; top: 0; height: 100%;
   object-fit: cover;
 }
-/* A imagem de fundo (Antes) */
 .compare-before { left: 0; width: 100%; }
-/* A imagem da frente (Depois) - começa cobrindo só 50% através do clipe JS, mas base é 50% */
 .compare-after {
   left: 0; width: 50%;
-  clip-path: inset(0 0 0 0); /* O clip-path será alterado pelo JavaScript */
+  clip-path: inset(0 0 0 0); 
 }
 
-/* A linha central que o usuário arrasta */
 .compare-divider {
   position: absolute; top: 0; bottom: 0;
   width: 3px;
   background: var(--white);
   left: 50%;
   transform: translateX(-50%);
-  cursor: col-resize; /* Cursor indicando redimensionamento horizontal */
+  cursor: col-resize; 
   display: flex; align-items: center; justify-content: center;
 }
-/* O círculo no meio da linha central do divisor */
 .divider-circle {
   width: 32px; height: 32px;
   background: var(--white);
@@ -1013,19 +908,18 @@ input {
   flex-shrink: 0;
 }
 
-/* Etiquetas flutuantes indicando "Antes" e "Depois" */
 .compare-label {
-  position: absolute; top: 12px;
+  position: absolute; 
+  top: 16px;
   background: rgba(0,0,0,.55);
   color: white;
   font-size: 12px; font-weight: 600;
-  padding: 4px 10px; border-radius: 6px;
+  padding: 8px 16px; border-radius: 6px;
   backdrop-filter: blur(4px);
 }
 .label-before { left: 12px; }
 .label-after  { right: 12px; }
 
-/* Texto de descrição do Antes/Depois */
 .compare-desc {
   margin: 0 20px 20px;
   background: rgba(255,255,255,.08);
@@ -1037,7 +931,6 @@ input {
 }
 .compare-sheet .btn-aplicar { margin: 0 20px; width: calc(100% - 40px); }
 
-/* Botão voltar para o conteúdo */
 .btn-back-content {
   display: block;
   margin: 14px 20px 0;
@@ -1056,7 +949,7 @@ input {
 
 
 /* ══════════════════════════════════════════════
-   IA CHATBOT (Interface de Chat)
+   IA CHATBOT
 ══════════════════════════════════════════════ */
 .chatbot-wrap {
   background: var(--white);
@@ -1067,7 +960,6 @@ input {
   display: flex;
   flex-direction: column;
 }
-/* Cabeçalho do Chatbot */
 .chatbot-header {
   background: linear-gradient(135deg, var(--wine-dark) 0%, var(--wine-mid) 100%);
   padding: 16px 18px;
@@ -1090,7 +982,6 @@ input {
   font-size: 11px; color: rgba(255,255,255,.6);
 }
 
-/* Área onde as mensagens rolam */
 .chatbot-messages {
   flex: 1; 
   min-height: 200px;
@@ -1098,18 +989,16 @@ input {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Mensagens nascem na esquerda (bot) */
+  align-items: flex-start; 
   gap: 12px;
   background: var(--cream);
-  scroll-behavior: smooth; /* Rolagem nativa suave do CSS */
+  scroll-behavior: smooth; 
 }
 
-/* Estilizando a barra de rolagem específica para o chat */
 .chatbot-messages::-webkit-scrollbar { width: 10px; }
 .chatbot-messages::-webkit-scrollbar-track { background: transparent; }
 .chatbot-messages::-webkit-scrollbar-thumb { background: var(--cream-dark); border-radius: 99px; }
 
-/* Estilo base do balão de mensagem */
 .chat-msg {
   max-width: 100%; 
   width: fit-content; 
@@ -1118,31 +1007,27 @@ input {
   font-size: 14px; 
   line-height: 1.5;
   animation: msgIn .2s ease;
-  word-wrap: break-word; /* Força quebra de linha em links compridos */
+  word-wrap: break-word; 
 }
 
-/* Animação do balão de mensagem surgindo */
 @keyframes msgIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: none; }
 }
 
-/* Balão do Bot (lado esquerdo) */
 .chat-msg.bot {
   background: var(--white);
   color: var(--text);
-  border-radius: 4px 14px 14px 14px; /* Ponta fina no topo esquerdo */
+  border-radius: 4px 14px 14px 14px; 
   box-shadow: 0 1px 4px rgba(74,15,30,.1);
   align-self: flex-start;
 }
-/* Balão do Usuário (lado direito) */
 .chat-msg.user {
   background: var(--wine);
   color: var(--white);
-  border-radius: 14px 4px 14px 14px; /* Ponta fina no topo direito */
-  align-self: flex-end; /* Joga a mensagem para o canto direito */
+  border-radius: 14px 4px 14px 14px; 
+  align-self: flex-end; 
 }
-/* Balão de "Digitando..." (mesmo estilo do Bot, mas itálico) */
 .chat-msg.typing {
   background: var(--white);
   color: var(--text-muted);
@@ -1153,7 +1038,6 @@ input {
   font-size: 12px;
 }
 
-/* Área de input de texto no chat */
 .chatbot-input-row {
   display: flex; gap: 8px;
   padding: 12px 14px;
@@ -1172,7 +1056,6 @@ input {
 }
 .chatbot-input::placeholder { color: var(--text-muted); }
 
-/* Botão de enviar */
 .chatbot-send {
   width: 36px; height: 36px;
   background: var(--gold);
@@ -1184,7 +1067,6 @@ input {
 }
 .chatbot-send:hover { filter: brightness(1.1); }
 
-/* Sugestões de mensagens (botões pequenos acima do input) */
 .chatbot-suggestions {
   display: flex; flex-wrap: wrap; gap: 6px;
   padding: 10px 14px 0;
@@ -1201,7 +1083,6 @@ input {
 }
 .chat-suggestion:hover { background: var(--gold); }
 
-/* Seletor dropdown no topo do chat (ex: selecionar imóvel/patrimônio) */
 .chatbot-patrimonio-selector {
   padding: 12px 14px;
   background: var(--white);
@@ -1225,9 +1106,8 @@ input {
 }
 
 /* ══════════════════════════════════════════════
-   LEAFLET overrides (Sobrescrevendo estilos do mapa)
+   LEAFLET overrides
 ══════════════════════════════════════════════ */
-/* Estilizando a bolha (popup) nativa da biblioteca do Leaflet (mapa) */
 .leaflet-popup-content-wrapper {
   border-radius: var(--radius) !important;
   padding: 0 !important;
@@ -1235,7 +1115,7 @@ input {
   box-shadow: var(--shadow-lg) !important;
 }
 .leaflet-popup-content { margin: 0 !important; }
-.leaflet-popup-tip-container { display: none; } /* Esconde o "triângulo" da bolha original */
+.leaflet-popup-tip-container { display: none; } 
 
 .map-popup {
   width: 200px;
@@ -1250,7 +1130,6 @@ input {
 }
 .map-popup-addr { font-size: 11px; color: var(--text-muted); }
 
-/* Botão dentro do popup do mapa */
 .map-popup-btn {
   display: block; width: 100%;
   background: var(--wine);
@@ -1263,23 +1142,20 @@ input {
 .map-popup-btn:hover { background: var(--wine-mid); }
 
 /* ══════════════════════════════════════════════
-   RESPONSIVE (Ajustes para telas maiores)
+   RESPONSIVE
 ══════════════════════════════════════════════ */
 @media (min-width: 480px) {
-  /* Em telas maiores que um celular (ex: desktop), o app ganha largura máxima e fica centralizado */
   #app { max-width: 430px; margin: 0 auto; }
   .compare-slider { height: 340px; }
 }
 
 @media (min-width: 768px) {
-  /* Em tablets, os cards na home ficam um pouco maiores */
   .feat-card { flex: 0 0 220px; }
   .feat-card img { height: 170px; }
 }
 
 /* ══════════════════════════════════════════════
    MAPA — popup redesenhado 
-   (NOTA: Sobrescreve as regras Leaflet acima para uma versão mais aprimorada)
 ══════════════════════════════════════════════ */
 .leaflet-popup-content-wrapper {
   border-radius: 16px !important;
@@ -1340,7 +1216,7 @@ input {
 .map-popup-btn:hover { filter: brightness(1.1); }
 
 /* ══════════════════════════════════════════════
-   ADMIN — Painel de Gestão
+   ADMIN
 ══════════════════════════════════════════════ */
 .admin-page-header {
   display: flex; align-items: center;
@@ -1358,7 +1234,6 @@ input {
   flex: 1;
 }
 
-/* ── Tabs do Administrador (ex: Criar / Listar) ── */
 .admin-tabs {
   display: flex; gap: 0;
   background: var(--wine-dark);
@@ -1372,7 +1247,7 @@ input {
   color: rgba(255,255,255,.5);
   letter-spacing: .02em;
   border-bottom: 2.5px solid transparent;
-  margin-bottom: -2px; /* Faz a borda da aba sobrepor a borda do contêiner */
+  margin-bottom: -2px; 
   transition: all .2s;
 }
 .admin-tab.active {
@@ -1381,25 +1256,22 @@ input {
 }
 
 .admin-tab-content { display: none; }
-.admin-tab-content.active { display: block; } /* Mostra o conteúdo da aba ativa */
+.admin-tab-content.active { display: block; } 
 
-/* ── Formulário do Admin ── */
 .admin-form {
   padding: 20px;
   display: flex; flex-direction: column; gap: 14px;
 }
 
-/* Títulos de seção nos formulários */
 .admin-section-title {
   font-family: var(--font-display);
   font-size: 18px; font-weight: 600;
   color: var(--wine-dark);
-  border-left: 3px solid var(--gold); /* Barra dourada à esquerda do título */
+  border-left: 3px solid var(--gold); 
   padding-left: 10px;
   margin-top: 8px;
 }
 
-/* Campos padrão do formulário (Inputs) */
 .admin-field {
   display: flex; flex-direction: column; gap: 5px;
 }
@@ -1424,7 +1296,6 @@ input {
   transition: border-color .2s, box-shadow .2s;
   width: 100%;
 }
-/* Foco no input (borda amarela / dourada ao clicar) */
 .admin-field input:focus,
 .admin-field select:focus,
 .admin-field textarea:focus {
@@ -1432,19 +1303,17 @@ input {
   box-shadow: 0 0 0 3px rgba(196,151,58,.15);
 }
 .admin-field textarea {
-  resize: vertical; /* Permite redimensionar apenas a altura */
+  resize: vertical; 
   min-height: 90px; line-height: 1.6;
 }
 .admin-hint {
   font-size: 11px; color: var(--text-muted); font-style: italic;
 }
 
-/* Organiza campos de formulário em duas colunas lado a lado */
 .admin-row {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
 }
 
-/* ── Botão de localizar no mapa (Geolocalização) ── */
 .btn-locate-map {
   background: linear-gradient(135deg, var(--wine), var(--wine-mid));
   color: white;
@@ -1457,7 +1326,6 @@ input {
 }
 .btn-locate-map:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-/* ── Preview e Upload de Imagem ── */
 .upload-btn {
   display: inline-flex;
   align-items: center;
@@ -1465,7 +1333,7 @@ input {
   margin: 6px 0 4px;
   padding: 9px 18px;
   background: var(--gold);
-  color: var(--burgundy-dark); /* Variável ausente no root, possivelmente usará fallback default */
+  color: var(--burgundy-dark); 
   font-size: .82rem;
   font-weight: 700;
   border-radius: 8px;
@@ -1478,16 +1346,15 @@ input {
 
 .upload-filename {
   font-size: .78rem;
-  color: var(--burgundy); /* Variável ausente */
+  color: var(--burgundy); 
   opacity: .75;
   min-height: 16px;
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Adiciona "..." se o nome do arquivo for longo */
+  text-overflow: ellipsis; 
 }
 
-/* Caixa onde a imagem de preview é exibida */
 .img-preview-wrap { margin-top: 4px; }
 .img-preview {
   width: 100%; max-height: 160px;
@@ -1497,20 +1364,18 @@ input {
   box-shadow: 0 2px 8px rgba(74,15,30,.1);
 }
 
-/* ── Barra deslizante (Range) de conservação ── */
 .conserv-wrap {
   display: flex; align-items: center; gap: 12px;
 }
 .conserv-wrap input[type="range"] {
   flex: 1;
   appearance: none;
-  -webkit-appearance: none; /* Remove o visual padrão nativo do slider */
+  -webkit-appearance: none; 
   -moz-appearance: none;
   height: 5px; border-radius: 99px;
   background: var(--cream-dark); border: none; padding: 0;
   outline: none; cursor: pointer;
 }
-/* Estiliza o "botãozinho" redondo que arrasta no slider */
 .conserv-wrap input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 20px; height: 20px;
@@ -1527,19 +1392,17 @@ input {
   font-family: var(--font-display);
 }
 
-/* ── Linhas dinâmicas para adicionar Estado de conservação (ex: adicionar múltiplos problemas) ── */
 .estado-inputs { display: flex; flex-direction: column; gap: 6px; }
 .estado-input-row {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 8px; width: 100%;
 }
 .estado-dot-sel {
   background: var(--cream-dark); border: none;
   border-radius: 8px; padding: 7px 6px;
   font-size: 14px; cursor: pointer; outline: none;
-  flex-shrink: 0;
+  flex-shrink: 0; width: auto !important;
 }
 .estado-label-inp {
-  flex: 1;
   background: var(--white);
   border: 1.5px solid var(--cream-dark);
   border-radius: 8px;
@@ -1548,9 +1411,9 @@ input {
   color: var(--text);
   outline: none;
   font-family: var(--font-body);
+  width: 100% !important; flex: 1; min-width: 0;
 }
 .estado-label-inp:focus { border-color: var(--gold); }
-/* Botão para remover linha */
 .btn-rm-estado {
   width: 30px; height: 30px;
   border-radius: 50%;
@@ -1561,7 +1424,6 @@ input {
   transition: background .15s;
 }
 .btn-rm-estado:hover { background: var(--danger); color: white; }
-/* Botão para adicionar nova linha */
 .btn-add-estado {
   font-size: 12px; font-weight: 600;
   color: var(--wine);
@@ -1571,7 +1433,6 @@ input {
   text-underline-offset: 2px;
 }
 
-/* ── Mensagens de feedback do painel (Erro, Sucesso, etc) ── */
 .admin-msg {
   border-radius: 10px;
   padding: 12px 14px;
@@ -1583,7 +1444,6 @@ input {
 .admin-msg-warn    { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
 .admin-msg-info    { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
 
-/* ── Botão Salvar do Admin ── */
 .btn-salvar-admin {
   background: linear-gradient(135deg, var(--gold), #D4A84B);
   color: var(--wine-dark);
@@ -1602,7 +1462,6 @@ input {
   box-shadow: 0 8px 24px rgba(196,151,58,.45);
 }
 
-/* ── Lista de patrimônios na área de admin ── */
 .admin-list-empty {
   text-align: center;
   padding: 40px 20px;
@@ -1615,7 +1474,6 @@ input {
   display: flex; flex-direction: column; gap: 12px;
 }
 
-/* Estilo do card listado no painel */
 .admin-card {
   display: flex; align-items: center; gap: 12px;
   background: var(--white);
@@ -1644,12 +1502,10 @@ input {
   text-transform: uppercase; letter-spacing: .08em;
   padding: 2px 7px; border-radius: 5px;
 }
-/* Cores das categorias na listagem admin */
 .admin-cat-historico { background: rgba(107,26,42,.12); color: var(--wine); }
 .admin-cat-cultural  { background: rgba(90,39,117,.12); color: #5A2775; }
 .admin-cat-natural   { background: rgba(26,92,42,.12);  color: #1A5C2A; }
 
-/* Botões de ação do card: Editar, Deletar */
 .admin-card-actions { display: flex; gap: 6px; }
 .admin-action-btn {
   font-size: 11px; font-weight: 600;
@@ -1670,7 +1526,7 @@ input {
 .admin-del-btn:hover { background: rgba(196,58,58,.2); }
 
 /* ══════════════════════════════════════════════
-   LOGIN MODAL (Tela de Entrada/Autenticação)
+   LOGIN MODAL
 ══════════════════════════════════════════════ */
 .login-sheet {
   width: 100%;
@@ -1688,7 +1544,6 @@ input {
   position: relative;
   overflow: hidden;
 }
-/* Detalhe de luz circular radial no fundo do header de login */
 .login-header::before {
   content: '';
   position: absolute; inset: 0;
@@ -1711,7 +1566,6 @@ input {
   letter-spacing: .06em; text-transform: uppercase;
 }
 
-/* Corpo do formulário de login */
 .login-body {
   padding: 24px 24px 8px;
   display: flex; flex-direction: column; gap: 14px;
@@ -1741,25 +1595,22 @@ input {
   box-shadow: 0 0 0 3px rgba(196,151,58,.18);
 }
 
-/* Campo de senha (com o botão de ver/esconder) */
 .login-pass-wrap {
   position: relative;
 }
 .login-pass-wrap input {
   width: 100%;
-  padding-right: 46px; /* Dá espaço para o botão do olho não ficar em cima do texto */
+  padding-right: 46px; 
 }
-/* Botão "olhinho" da senha */
 .btn-toggle-pass {
   position: absolute; right: 12px; top: 50%;
-  transform: translateY(-50%); /* Centraliza verticalmente o botão independente do height */
+  transform: translateY(-50%); 
   font-size: 18px; opacity: .5;
   transition: opacity .15s;
   background: none; border: none; cursor: pointer;
 }
 .btn-toggle-pass:hover { opacity: 1; }
 
-/* Mensagens do painel de login (Erros/Avisos) */
 .login-msg {
   border-radius: 10px;
   padding: 10px 14px;
@@ -1793,7 +1644,7 @@ input {
 .btn-login-cancel:hover { color: var(--wine); }
 
 /* ══════════════════════════════════════════════
-   ADMIN SESSION BAR (Barra no topo quando o Admin está logado)
+   ADMIN SESSION BAR
 ══════════════════════════════════════════════ */
 .admin-session-bar {
   background: linear-gradient(135deg, var(--wine-dark) 0%, #2A0810 100%);
@@ -1816,10 +1667,8 @@ input {
   text-transform: uppercase; letter-spacing: .08em;
 }
 
-/* Botões da barra de sessão */
 .admin-session-actions { display: flex; gap: 8px; align-items: center; }
 
-/* Botão "Gerenciar Admins" */
 .btn-mgr-admins {
   background: rgba(196,151,58,.2);
   border: 1px solid rgba(196,151,58,.4);
@@ -1831,7 +1680,6 @@ input {
 }
 .btn-mgr-admins:hover { background: rgba(196,151,58,.35); }
 
-/* Botão "Sair" (Logout) */
 .btn-logout {
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.15);
@@ -1844,7 +1692,7 @@ input {
 .btn-logout:hover { background: rgba(196,58,58,.25); color: #ff8888; border-color: rgba(196,58,58,.4); }
 
 /* ══════════════════════════════════════════════
-   GERENCIADOR DE ADMINS (Modal de criação/exclusão de usuários admins)
+   GERENCIADOR DE ADMINS
 ══════════════════════════════════════════════ */
 .adminmgr-sheet {
   width: 100%; max-height: 92vh;
@@ -1872,7 +1720,7 @@ input {
 .adminmgr-header h3 {
   font-family: var(--font-display);
   font-size: 24px; color: var(--white);
-  position: relative; /* Garante que fica acima do ::before (fundo brilhante) */
+  position: relative; 
 }
 .adminmgr-sub {
   font-size: 11px; color: var(--gold);
@@ -1892,7 +1740,6 @@ input {
   margin-bottom: 14px;
 }
 
-/* Campos de entrada (Email/Senha) para criar novo admin */
 .adminmgr-field {
   display: flex; flex-direction: column; gap: 5px;
   margin-bottom: 12px;
@@ -1932,7 +1779,6 @@ input {
 }
 .btn-criar-admin:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-/* Lista de administradores atuais */
 .adminmgr-list {
   display: flex; flex-direction: column; gap: 8px;
   background: var(--white);
@@ -1946,14 +1792,13 @@ input {
   color: var(--text-muted); font-size: 13px;
 }
 
-/* Item individual de um admin na lista */
 .adminmgr-item {
   display: flex; align-items: center; gap: 12px;
   padding: 13px 16px;
   border-bottom: 1px solid var(--cream-dark);
   animation: msgIn .2s ease;
 }
-.adminmgr-item:last-child { border-bottom: none; } /* Remove borda do último item */
+.adminmgr-item:last-child { border-bottom: none; } 
 .adminmgr-item-icon { font-size: 22px; }
 .adminmgr-item-info { flex: 1; min-width: 0; }
 .adminmgr-item-name {
@@ -1963,7 +1808,6 @@ input {
   font-size: 11px; color: var(--text-muted); margin-top: 2px;
 }
 
-/* Botão de lixeira para deletar admin */
 .btn-rm-admin {
   font-size: 16px; opacity: .5;
   padding: 6px; border-radius: 8px;
@@ -1971,7 +1815,6 @@ input {
 }
 .btn-rm-admin:hover { opacity: 1; background: rgba(196,58,58,.12); }
 
-/* Botão para fechar o painel de gerenciar admins */
 .btn-fechar-mgr {
   display: block;
   width: calc(100% - 40px);
@@ -1986,13 +1829,12 @@ input {
 }
 .btn-fechar-mgr:hover { background: #DDD5C5; }
 
-/* Reduz o tamanho do cabeçalho exclusivamente na aba do Mapa */
 #screen-mapa .page-header {
-  padding-top: 28px; /* Reduz o espaço acima do título (original era 52px) */
-  padding-bottom: 8px; /* Reduz o espaço abaixo do título */
+  padding-top: 28px; 
+  padding-bottom: 8px; 
 }
 /* ══════════════════════════════════════════════
-   MAPA — BLOCO ÚNICO DE GRADIENTE E AJUSTES
+   MAPA — BLOCO ÚNICO
 ══════════════════════════════════════════════ */
 #screen-mapa {
   padding-bottom: 0; 
@@ -2000,28 +1842,21 @@ input {
   position: relative;
 }
 
-/* ═══════════════════════════════════════════════
-   MAPA — BLOCO ÚNICO DE GRADIENTE E AJUSTES
-═══════════════════════════════════════════════ */
-
-/* Lona de gradiente contínua no fundo */
 #screen-mapa::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  /* ALTERAÇÃO AQUI: Mudamos de um height fixo para cobrir do topo até a base dos filtros */
-  bottom: calc(100% - 190px); /* Ajusta a descida do gradiente de forma fluida */
-  min-height: 195px;          /* Garante que ele passe da linha dos filtros com folga */
+  bottom: calc(100% - 190px); 
+  min-height: 195px;          
   background: linear-gradient(135deg, #681020 20%, #3C0E1B 100%);
   z-index: 1;
 }
 
-/* Cabeçalho: Título centralizado e engrenagem na direita */
 #screen-mapa .page-header {
   position: relative;
   display: flex;
   justify-content: flex-end; 
-  padding-top: 56px; 
+  padding-top: 15px; /* Reduzido de 56px para 20px */
   padding-bottom: 12px;
   background: transparent !important;
   z-index: 2;
@@ -2038,21 +1873,12 @@ input {
   text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Filtros: Espaçamento de respiro antes do mapa */
 #screen-mapa .map-filters {
   padding-top: 16px; 
   padding-bottom: 16px; 
   background: transparent !important;
   position: relative;
   z-index: 2;
-}
-
-/* Mapa: Preenche o resto da tela */
-#map {
-  flex: 1; 
-  width: 100%;
-  position: relative;
-  z-index: 2; 
 }
 
 /* ══════════════════════════════════════════════
@@ -2100,16 +1926,16 @@ input {
 .busca-screen {
   position: fixed;
   top: 0; left: 0; right: 0; 
-  bottom: 64px; /* Para exatamente em cima do seu menu inferior */
+  bottom: 64px; 
   background: var(--cream);
-  z-index: 45; /* Fica acima do app, mas abaixo do menu (50) */
+  z-index: 45; 
   display: flex;
   flex-direction: column;
-  transform: translateX(100%); /* Escondida fora da tela na direita */
+  transform: translateX(100%); 
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
 }
 .busca-screen.active {
-  transform: translateX(0); /* Desliza para dentro */
+  transform: translateX(0); 
 }
 
 .busca-header {
@@ -2190,3 +2016,120 @@ input {
 .busca-list-info h4 { font-family: var(--font-display); font-size: 18px; color: var(--wine-dark); margin-bottom: 4px; font-weight: 700; }
 .busca-list-meta { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); font-weight: 500; }
 .busca-list-arrow { color: var(--cream-dark); font-size: 20px; padding-left: 8px; }
+
+@media (max-width: 768px) {
+  .admin-field input, .admin-field select, .admin-field textarea,
+  .estado-label-inp, .estado-dot-sel {
+    font-size: 16px !important;
+  }
+}
+
+/* ── REMOVIDO: O .modal-body que impedia a rolagem de funcionar ── */
+.modal-card, .feat-card, .compare-slider {
+  overflow: hidden !important; 
+}
+
+/* =======================================================
+   AJUSTES FINAIS DA ABA FAVORITOS
+   ======================================================= */
+#screen-favoritos .page-header {
+  padding-top: 55px !important;
+  padding-bottom: 12px !important;
+  min-height: auto !important;
+  margin-bottom: 24px !important; /* Cria o espaçamento perfeito até o conteúdo */
+}
+
+ /* =======================================================
+   ESTILIZAÇÃO UNIFICADA DE TODOS OS POP-UPS TÉCNICOS
+   ======================================================= */
+
+/* 1. Card principal do Pop-up (Aplica o fundo bege e a fonte padrão do app) */
+#techPopupOverlay .modal-card {
+  background: var(--cream) !important; /* Fundo bege */
+  border: 1.5px solid var(--cream-dark) !important;
+  box-shadow: var(--shadow-lg) !important;
+  font-family: var(--font-body) !important; /* Garante a fonte padrão do projeto */
+}
+
+/* 2. Título do Pop-up (Centralizado com a fonte elegante serifada de títulos) */
+#techPopupTitle {
+  text-align: center !important; /* Centraliza o título */
+  font-family: var(--font-display) !important; /* Fonte Cormorant Garamond do projeto */
+  color: var(--wine) !important; /* Vermelho principal */
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  margin-bottom: 16px !important;
+}
+
+/* 3. Texto descritivo do Pop-up (Centralizado com a cor vermelha e fonte padrão) */
+#techPopupText {
+  color: var(--wine) !important; /* Vermelho principal para o texto */
+  font-family: var(--font-body) !important; /* Fonte DM Sans do projeto */
+  text-align: center !important; /* Centraliza a mensagem */
+  font-weight: 500 !important;
+  line-height: 1.6 !important;
+}
+
+/* 4. Botão de Fechar de dentro do Pop-up (Ajuste sutil de margem) */
+#techPopupOverlay .btn-aplicar {
+  font-family: var(--font-body) !important;
+  margin-top: 24px !important;
+}
+
+/* =======================================================
+   CORREÇÃO VISUAL DOS CARDS DE DESTAQUE (HOME)
+   ======================================================= */
+.feat-card-info {
+  text-align: left !important;   /* Força o texto a começar sempre da esquerda */
+  right: 0 !important;
+  left: 0 !important;
+}
+
+.feat-card-name, .feat-card-loc {
+  text-align: left !important;
+  white-space: nowrap !important;      /* Garante que o texto fique em uma linha só */
+  overflow: hidden !important;         /* Esconde o que passar do limite do card */
+  text-overflow: ellipsis !important;  /* Adiciona os "..." automaticamente no final */
+  width: 100% !important;
+}
+
+.feat-card-name, .feat-card-loc {
+  text-align: left !important;
+  white-space: normal !important;      /* Permite a quebra de linha natural */
+  word-break: break-word !important;   /* Quebra a palavra se ela for gigante */
+}
+
+/* =======================================================
+   EFEITO DE ROLAGEM INFINITA/SANGUINEA NOS CARDS (HOME)
+   ======================================================= */
+.cards-row {
+  margin-left: -20px !important;   /* Puxa o contêiner até colar na borda esquerda da tela */
+  margin-right: -20px !important;  /* Puxa o contêiner até colar na borda direita da tela */
+  padding-left: 20px !important;   /* Devolve o recuo interno para o 1º card alinhar com o título */
+  padding-right: 20px !important;  /* Garante um respiro sutil após o último card da lista */
+  overflow-x: auto !important;     /* Garante que a rolagem horizontal continue ativa */
+  -webkit-overflow-scrolling: touch; /* Torna o deslizamento do dedo extremamente liso no celular */
+}
+
+/* =======================================================
+   CONSERTO DE LAYOUT: MÁXIMO 3 TAGS POR LINHA (MODAL)
+   ======================================================= */
+.modal-tags {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px !important;       /* Reduzido sutilmente para ajudar a caber as 3 lado a lado */
+  padding: 0 !important;
+  margin-bottom: 28px !important; 
+}
+
+.tag {
+  flex: 0 1 calc(33.333% - 6px) !important; /* Força o limite matemático de no máximo 3 por linha */
+  padding: 8px 4px !important;              /* Reduzido o preenchimento lateral para o texto caber */
+  font-size: 10px !important;               /* Ajustado levemente para 10px para garantir o encaixe em celulares menores */
+  text-align: center !important;
+  white-space: nowrap !important;           /* Impede o texto de quebrar linha dentro da própria tag */
+  overflow: hidden !important;              /* Corta qualquer excesso de texto de forma segura */
+  text-overflow: ellipsis !important;       /* Adiciona o efeito '...' caso o texto seja longo demais */
+  display: inline-block !important;
+}

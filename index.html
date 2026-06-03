@@ -2,33 +2,26 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ReMemória — Patrimônios Históricos</title>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.395.0/font/lucide.min.css" />
 
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     SPLASH SCREEN
-══════════════════════════════════════════ -->
 <div id="splash">
   <div class="splash-inner">
     <div class="splash-icon">🏛️</div>
     <h1 class="splash-title">ReMemória</h1>
     <p class="splash-sub">Patrimônios Históricos</p>
     <div class="splash-loader"><span></span></div>
-    <!-- Botão invisível master — duplo toque abre o login -->
     <div id="splashSecretBtn"
       onclick="secretTap()"
       ontouchend="secretTap(); event.preventDefault();"
@@ -37,38 +30,30 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     APP SHELL
-══════════════════════════════════════════ -->
 <div id="app" class="hidden">
 
-  <!-- ── TELA HOME ── -->
   <section id="screen-home" class="screen active">
-    <!-- Topo: marca + notificação -->
     <header class="home-header" style="position:relative;">
       <div class="header-top">
         <div>
           <p class="header-greeting">Bem-vindo ao</p>
-          <h1 class="header-brand">ReMemória</h1>
+          <h1 class="header-brand" onclick="secretTap()" style="cursor: pointer;">ReMemória</h1>
         </div>
         <button class="btn-icon" onclick="openNotif()">🔔</button>
       </div>
-      <!-- Gatilho secreto invisível sobre o logo — 2 toques rápidos abre o login -->
       <div id="secretTrigger"
         style="position:absolute;top:44px;left:16px;width:140px;height:62px;z-index:99;cursor:default;-webkit-tap-highlight-color:transparent;"
         onclick="secretTap()" ontouchend="secretTap(); event.preventDefault();">
       </div>
     </header>
 
-    <!-- Bloco hero: destaque + título + subtítulo -->
     <div class="home-hero">
       <div class="hero-badge">DESTAQUE</div>
       <h2 class="hero-title">Explorar patrimônios</h2>
       <p class="hero-sub">Descubra a história ao seu redor</p>
     </div>
 
-<!-- Barra de pesquisa abaixo do hero -->
-    <div class="home-search-wrap">
+<div class="home-search-wrap">
       <div class="search-bar" onclick="openBusca()" style="cursor: pointer;">
         <span class="search-icon">🔍</span>
         <input type="text" placeholder="Pesquisar patrimônios..." readonly style="pointer-events: none;" />
@@ -77,13 +62,11 @@
 
     <div class="home-content">
 
-      <!-- Destaques -->
       <section class="section">
         <h3 class="section-title">Destaques</h3>
         <div class="cards-row" id="featuredCards"></div>
       </section>
 
-      <!-- Próximos -->
       <section class="section">
         <h3 class="section-title">Próximos de você</h3>
         <div class="list-items" id="nearbyList"></div>
@@ -92,7 +75,6 @@
     </div>
   </section>
 
-  <!-- ── TELA MAPA ── -->
   <section id="screen-mapa" class="screen">
     <header class="page-header">
       <h2>Mapa</h2>
@@ -118,7 +100,6 @@
     <div id="map"></div>
   </section>
 
-  <!-- ── TELA IA ── -->
   <section id="screen-ia" class="screen">
     <header class="page-header">
       <h2>IA Patrimonial</h2>
@@ -128,7 +109,6 @@
     </div>
   </section>
 
-  <!-- ── TELA FAVORITOS ── -->
   <section id="screen-favoritos" class="screen">
     <header class="page-header">
       <h2>Favoritos</h2>
@@ -141,7 +121,6 @@
     </div>
   </section>
 
-  <!-- ── TELA ADMIN ── -->
   <section id="screen-admin" class="screen">
     <header class="page-header admin-page-header">
       <div class="admin-header-left">
@@ -153,41 +132,60 @@
 
     <div class="admin-content">
 
-      <!-- Tabs -->
       <div class="admin-tabs">
         <button class="admin-tab active" data-tab="novo" onclick="switchAdminTab('novo',this)">➕ Novo</button>
         <button class="admin-tab" data-tab="lista" onclick="switchAdminTab('lista',this)">📋 Cadastrados</button>
       </div>
 
-      <!-- TAB: Novo patrimônio -->
       <div id="admin-tab-novo" class="admin-tab-content active">
-        <form id="adminForm" class="admin-form" onsubmit="return false">
 
-          <div class="admin-section-title">Identificação</div>
+        <div style="margin: 20px; padding: 16px; background: var(--white); border-radius: var(--radius); box-shadow: 0 2px 10px rgba(74,15,30,.07);">
+          <div class="admin-section-title" style="margin-top: 0; margin-bottom: 6px;">Criar Nova Categoria Global</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Cadastre novas categorias universais no sistema antes de vinculá-las a um patrimônio.</p>
+          <div class="admin-row" style="grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div class="admin-field">
+              <input type="text" id="ac-nome" placeholder="Nome da Categoria (Ex: Monumento, Praça)" style="padding: 10px 12px; font-size: 13px;" />
+            </div>
+            <div class="admin-field">
+              <input type="text" id="ac-emoji" placeholder="Emoji (Ex: 🗿, ⛲)" style="padding: 10px 12px; font-size: 13px; text-align: center;" />
+            </div>
+          </div>
+          <button type="button" onclick="criarNovaCategoriaGlobal()" class="btn-locate-map" style="background: var(--wine); padding: 10px; font-size: 12px;">
+            ➕ Cadastrar Nova Categoria no Sistema
+          </button>
+        </div>
+
+        <form id="adminForm" class="admin-form">
 
           <div class="admin-field">
             <label>Nome do Patrimônio *</label>
             <input type="text" id="af-nome" placeholder="Ex: Igreja Nossa Senhora da Paz" required />
           </div>
+          
           <div class="admin-field">
             <label>ID único (slug) *</label>
             <input type="text" id="af-id" placeholder="Ex: igreja-ns-paz" required />
             <span class="admin-hint">Sem espaços, apenas letras e hífens</span>
           </div>
+
           <div class="admin-row">
             <div class="admin-field">
-              <label>Categoria *</label>
-              <select id="af-cat">
-                <option value="historico">🏛️ Histórico</option>
-                <option value="cultural">🎭 Cultural</option>
-                <option value="natural">🌿 Natural</option>
-              </select>
+              <label>Categorias do Patrimônio *</label>
+              <div id="categoriaInputs" style="display:flex; flex-direction:column; gap:8px;">
+                <div class="cat-input-row" style="display:flex; gap:8px; align-items:center; width:100%;">
+                  <select class="af-cat-select" style="flex:1;"></select>
+                  <button type="button" class="btn-rm-estado" onclick="removeCategoriaRow(this)" style="display:none;">✕</button>
+                </div>
+              </div>
+              <button type="button" class="btn-add-estado" onclick="addCategoriaRow()">+ Adicionar mais uma categoria a este patrimônio</button>
             </div>
+            
             <div class="admin-field">
               <label>Ano de fundação</label>
               <input type="text" id="af-fundado" placeholder="Ex: 1887" />
             </div>
           </div>
+
           <div class="admin-field">
             <label>Estilo arquitetônico</label>
             <input type="text" id="af-estilo" placeholder="Ex: Barroco Paulista" />
@@ -199,6 +197,7 @@
             <label>Endereço completo *</label>
             <input type="text" id="af-end" placeholder="Ex: Rua XV de Novembro, 100 — Centro" required />
           </div>
+          
           <div class="admin-row">
             <div class="admin-field">
               <label>Latitude *</label>
@@ -209,7 +208,7 @@
               <input type="number" id="af-lng" step="any" placeholder="-45.8850" required />
             </div>
           </div>
-          <button type="button" class="btn-locate-map" onclick="getMyCoords()">📍 Usar minha localização atual</button>
+          <button type="button" class="btn-add-estado" onclick="getMyCoords()" style="margin-top: 4px;">📍 Usar minha localização atual</button>
 
           <div class="admin-section-title">Imagens</div>
 
@@ -221,8 +220,9 @@
             <input type="url" id="af-img" placeholder="https://... (opcional se enviar foto acima)" oninput="previewImg('af-img','prev-img')" />
             <div class="img-preview-wrap"><img id="prev-img" src="" alt="" class="img-preview hidden" /></div>
           </div>
+          
           <div class="admin-field">
-            <label>Imagem "depois" (comparação) — envie um arquivo <span style="font-weight:400;opacity:.7">(ou cole uma URL abaixo)</span></label>
+            <label>Imagem "depois" (comparação) — envie arquivo <span style="font-weight:400;opacity:.7">(ou cole URL)</span></label>
             <label class="upload-btn" for="af-imgafter-file">📷 Escolher foto</label>
             <input type="file" id="af-imgafter-file" accept="image/*" style="display:none" onchange="handleImgUpload(this,'af-imgafter','prev-imgafter')" />
             <div class="upload-filename" id="af-imgafter-fname"></div>
@@ -236,11 +236,25 @@
             <label>Texto descritivo *</label>
             <textarea id="af-desc" rows="4" placeholder="Descreva a história e importância deste patrimônio..." required></textarea>
           </div>
+          
           <div class="admin-field">
             <label>Texto da comparação (antes/depois)</label>
             <textarea id="af-comparedesc" rows="3" placeholder="Descreva a intervenção proposta..."></textarea>
           </div>
 
+          <div class="admin-section-title">Informações Técnicas</div>
+          <div class="admin-field">
+            <label>Materiais</label>
+            <textarea id="af-materiais" rows="2" placeholder="Ex: Tijolo maciço, argamassa de cal..."></textarea>
+          </div>
+          <div class="admin-field">
+            <label>Técnicas construtivas</label>
+            <textarea id="af-tecnicas" rows="2" placeholder="Ex: Alvenaria estrutural, taipa..."></textarea>
+          </div>
+          <div class="admin-field">
+            <label>Notas históricas</label>
+            <textarea id="af-notas" rows="2" placeholder="Informações extras..."></textarea>
+          </div>
           <div class="admin-section-title">Estado de Conservação</div>
 
           <div class="admin-field">
@@ -267,18 +281,17 @@
 
           <div class="admin-field">
             <label>Opções de simulação (separadas por vírgula)</label>
-            <input type="text" id="af-sims" placeholder="Ex: Restaurar fachada, Pintura histórica, Conservação geral" />
+            <input type="text" id="af-sims" placeholder="Ex: Restaurar fachada, Pintura histórica" />
           </div>
+          
           <div class="admin-field">
             <label>Tags de resultado (separadas por vírgula)</label>
             <input type="text" id="af-simtags" placeholder="Ex: 🔵 Melhoria na fachada, ✅ Restauro concluído" />
           </div>
 
-          <div class="admin-field">
-            <label>
-              <input type="checkbox" id="af-destaque" style="margin-right:6px" />
-              Marcar como Destaque
-            </label>
+          <div class="admin-field" style="flex-direction:row; align-items:center;">
+            <input type="checkbox" id="af-destaque" style="width:auto; margin-right:6px;" />
+            <label for="af-destaque" style="margin:0; text-transform:none; font-size:14px; color:var(--text);">Marcar como Destaque</label>
           </div>
 
           <div id="admin-form-msg" class="admin-msg hidden"></div>
@@ -289,7 +302,6 @@
         </form>
       </div>
 
-      <!-- TAB: Lista cadastrados -->
       <div id="admin-tab-lista" class="admin-tab-content">
         <div id="admin-list-wrap">
           <div class="admin-list-empty">Carregando...</div>
@@ -299,7 +311,6 @@
     </div>
   </section>
 
-  <!-- ── TELA PERFIL ── -->
   <section id="screen-perfil" class="screen">
     <header class="page-header">
       <h2>Perfil</h2>
@@ -317,22 +328,19 @@
         <button class="perfil-item" onclick="alert('Em breve!')">📜 Histórico de visitas</button>
         <button class="perfil-item" onclick="alert('Em breve!')">🎖️ Conquistas</button>
         <button class="perfil-item" onclick="alert('Em breve!')">🔔 Notificações</button>
+        <button class="perfil-item" onclick="openSobreProjeto()">ℹ️ Sobre o Projeto</button>
         <button class="perfil-item" onclick="alert('Em breve!')">⚙️ Configurações</button>
         <button class="perfil-item" onclick="alert('Em breve!')">❓ Ajuda & Feedback</button>
+        
       </div>
     </div>
   </section>
 
-<!-- ══════════════════════════════════════════════
-       TELA DE BUSCA AVANÇADA (Desliza da direita)
-  ══════════════════════════════════════════════ -->
-  <div id="buscaScreen" class="busca-screen">
-    <header class="busca-header">
+<div id="buscaScreen" class="busca-screen">
+      <header class="busca-header">
       <button class="btn-back-busca" onclick="closeBusca()">←</button>
       <h2 class="busca-title">Patrimônios</h2>
-      <button class="btn-icon-busca">🔍</button>
-    </header>
-
+      </header>
     <div class="busca-body">
       <div class="busca-search-wrap">
         <span class="search-icon">🔍</span>
@@ -347,12 +355,10 @@
       </div>
 
       <div id="buscaContentAvançada">
-        <!-- O conteúdo será gerado dinamicamente pelo JavaScript -->
-      </div>
+        </div>
     </div>
   </div>
 
-  <!-- ── NAV BAR ── -->
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="goTo('home',this)">
       <span class="nav-icon">🏠</span>
@@ -382,80 +388,91 @@
 
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAL DETALHE PATRIMÔNIO
-══════════════════════════════════════════ -->
 <div id="modalOverlay" class="modal-overlay hidden" onclick="closeModal(event)">
-  <div class="modal-sheet" id="modalSheet">
-    <div class="modal-handle"></div>
-
+  <div class="modal-sheet" id="modalSheet" onclick="event.stopPropagation()">
+    
     <div class="modal-img-wrap">
       <img id="mImg" src="" alt="" />
       <button class="modal-back" onclick="closeModal()">←</button>
       <button class="modal-fav" id="mFavBtn" onclick="toggleFav()">☆</button>
-      <button class="btn-3d" onclick="show3D()">🌐 Visualizar em 3D</button>
+      <button class="btn-3d" onclick="show3D()">View in 3D 🌐</button>
     </div>
 
     <div class="modal-body">
       <h2 id="mTitle"></h2>
-      <p class="modal-addr"><span>📍</span> <span id="mAddr"></span></p>
+      <p class="modal-addr">📍 <span id="mAddr"></span></p>
 
       <div class="modal-tags" id="mTags"></div>
 
-      <!-- Estado -->
       <div class="modal-card">
         <div class="card-header-row">
           <h4>Estado da edificação</h4>
-          <span class="badge-ai">Análise por IA 🤖</span>
+          <span id="mConservPercent" style="font-size: 13px; font-weight: bold; color: var(--wine);"></span>
         </div>
         <div class="estado-list" id="mEstado"></div>
       </div>
 
-      <!-- Descrição (logo após estado) -->
-      <div class="modal-desc" id="mDesc"></div>
-
-      <!-- Simulação -->
       <div class="modal-card">
-        <h4>Simular intervenção</h4>
+        <h4 style="margin-bottom: 12px;">História e Descrição</h4>
+        <div class="modal-desc" id="mDesc" style="text-align: justify;"></div>
+      </div>
+
+      <div class="modal-card" id="mSimCard">
+        <h4 style="margin-bottom: 16px;">Simular intervenção</h4>
         <div class="sim-btns" id="mSimBtns"></div>
         <button class="btn-aplicar" onclick="applySimulation()">Aplicar simulação</button>
         <div class="sim-tags" id="mSimTags"></div>
         <button class="btn-compare" onclick="openComparacao()">Ver antes e depois ↓</button>
       </div>
+
+      <div id="mTechInfoWrap">
+        <h3 class="info-tech-title">Informações técnicas</h3>
+        <div class="tech-list">
+          <div class="tech-item" id="btnTechMat" onclick="openTechPopup('Materiais', currentPatrimonio.materiais)">Materiais <span class="tech-arrow">›</span></div>
+          <div class="tech-item" id="btnTechConstr" onclick="openTechPopup('Técnicas construtivas', currentPatrimonio.tecnicas)">Técnicas construtivas <span class="tech-arrow">›</span></div>
+          <div class="tech-item" id="btnTechNotas" onclick="openTechPopup('Notas históricas', currentPatrimonio.notas)">Notas históricas <span class="tech-arrow">›</span></div>
+        </div>
+      </div>
+    </div> 
+    
+    <div class="modal-bottom-bar">
+      <button class="btn-outline-action" onclick="abrirNoGoogleMaps()">📍 Ver no mapa</button>
+      <button class="btn-outline-action" onclick="compartilharPatrimonio()">📤 Compartilhar</button>
     </div>
+    
+  </div> 
+</div> 
+
+<div id="techPopupOverlay" class="modal-overlay hidden" onclick="closeTechPopup(event)" style="z-index: 9999;">
+  <div class="modal-card" style="width: 90%; max-width: 400px; margin: auto; padding: 24px; position: relative; border-radius: 20px;">
+    <h3 id="techPopupTitle" style="color: var(--wine); font-family: var(--font-display); font-size: 22px; margin-bottom: 12px; font-weight: bold;"></h3>
+    <p id="techPopupText" style="font-size: 14px; color: var(--text-muted); text-align: justify; line-height: 1.6;"></p>
+    <button onclick="closeTechPopup()" class="btn-aplicar" style="margin-top: 20px; width: 100%; padding: 12px;">Fechar</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAL COMPARAÇÃO
-══════════════════════════════════════════ -->
-<div id="compareOverlay" class="modal-overlay hidden" onclick="closeCompare(event)">
-  <div class="compare-sheet">
+<div id="compareOverlay" class="modal-overlay hidden" onclick="closeCompare(event)" style="z-index: 10000;">
+  <div class="compare-sheet" onclick="event.stopPropagation()">
     <div class="compare-header">
-      <button onclick="closeCompare()" class="btn-back-compare">←</button>
-      <h3>Comparação</h3>
-      <button class="btn-icon">≡</button>
+      <h3>Antes e Depois</h3>
+      <button class="btn-back-compare" onclick="closeCompare()" style="background:none; border:none;">✕</button>
     </div>
-
     <div class="compare-slider-wrap">
       <div class="compare-slider" id="compareSlider">
-        <img id="cImgBefore" src="" alt="Antes" class="compare-img compare-before" />
-        <img id="cImgAfter" src="" alt="Depois" class="compare-img compare-after" />
+        <img id="cImgBefore" class="compare-img compare-before" src="" alt="Antes">
+        <img id="cImgAfter" class="compare-img compare-after" src="" alt="Depois">
         <div class="compare-divider" id="compareDivider">
-          <div class="divider-circle">◉</div>
+          <div class="divider-circle">↔</div>
         </div>
-        <span class="compare-label label-before">Antes</span>
-        <span class="compare-label label-after">Depois</span>
+        <div class="compare-label label-before">Antes</div>
+        <div class="compare-label label-after">Depois</div>
       </div>
     </div>
-
-    <div class="compare-desc" id="cDesc"></div>
-    <button class="btn-aplicar" onclick="alert('Intervenção registrada!')">Aplicar esta intervenção</button>
-    <button class="btn-back-content" onclick="closeCompare()">← Voltar</button>
+    <p class="compare-desc" id="cDesc" style="text-align: justify; font-size: 14px; color: rgba(255,255,255,0.8);"></p>
+    <button class="btn-aplicar" onclick="closeCompare()" style="margin: 0 20px; width: calc(100% - 40px);">Voltar aos detalhes</button>
   </div>
 </div>
 
-<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, query, where, getDoc }
@@ -488,16 +505,10 @@
   }
 </script>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- App JS -->
 <script src="app.js"></script>
 
-
-<!-- ══════════════════════════════════════════
-     MODAL LOGIN ADMIN
-══════════════════════════════════════════ -->
 <div id="loginOverlay" class="modal-overlay hidden" onclick="closeLoginModal(event)">
   <div class="login-sheet" id="loginSheet">
     <div class="modal-handle"></div>
@@ -530,9 +541,6 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAL GERENCIAR ADMINS (Master only)
-══════════════════════════════════════════ -->
 <div id="adminMgrOverlay" class="modal-overlay hidden" onclick="closeAdminMgr(event)">
   <div class="adminmgr-sheet">
     <div class="modal-handle"></div>
@@ -541,7 +549,6 @@
       <p class="adminmgr-sub">Sessão master ativa</p>
     </div>
 
-    <!-- Criar novo admin -->
     <div class="adminmgr-section">
       <div class="adminmgr-section-title">Criar novo administrador</div>
       <div class="adminmgr-field">
@@ -563,7 +570,6 @@
       <button class="btn-criar-admin" onclick="criarAdmin()">➕ Criar administrador</button>
     </div>
 
-    <!-- Lista de admins -->
     <div class="adminmgr-section">
       <div class="adminmgr-section-title">Administradores cadastrados</div>
       <div id="adminMgrList" class="adminmgr-list">
@@ -572,6 +578,53 @@
     </div>
 
     <button class="btn-fechar-mgr" onclick="closeAdminMgr()">Fechar</button>
+  </div>
+</div>
+
+<div id="sobreProjetoOverlay" class="modal-overlay hidden" onclick="closeSobreProjeto(event)">
+  <div class="modal-card" style="width: 90%; max-width: 440px; margin: auto; padding: 24px; position: relative; border-radius: 20px; background: var(--cream) !important; border: 1.5px solid var(--cream-dark) !important; box-shadow: var(--shadow-lg) !important;">
+    
+    <h3 style="color: var(--wine) !important; font-family: var(--font-display) !important; font-size: 24px; margin-bottom: 14px; font-weight: bold; text-align: center;">Sobre o Projeto</h3>
+    
+    <p style="font-size: 14px; color: var(--text-muted); text-align: justify; line-height: 1.6; margin-bottom: 16px; font-family: var(--font-body);">
+      O projeto <strong>ReMemória</strong> propõe o desenvolvimento de uma plataforma digital baseada em inteligência artificial para apoiar a preservação do patrimônio histórico de São José dos Campos. A iniciativa aplica visão computacional no diagnóstico de danos estruturais, auxiliando nos processos de restauro e promovendo a educação patrimonial local.
+    </p>
+    
+    <div style="background: rgba(107, 26, 42, 0.04); padding: 14px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--wine); font-family: var(--font-body);">
+      <h4 style="font-size: 11px; color: var(--wine); text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em; margin-bottom: 6px;">Integrantes da Equipe:</h4>
+      <p style="font-size: 14px; color: var(--text); margin-bottom: 4px;">🎓 <strong>Giovanna Baptista Villa</strong></p>
+      <p style="font-size: 14px; color: var(--text); margin-bottom: 8px;">🎓 <strong>Izabella da Costa Santos</strong></p>
+      <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-top: 8px;">Curso: Arquitetura e Urbanismo (Etep)<br>Orientadora: Prof.ª Rosenéa Menezes</p>
+    </div>
+    
+    <a href="PROJETO REMEMÓRIA.pdf" download="PROJETO REMEMÓRIA.pdf" class="btn-aplicar" style="display: block; text-align: center; text-decoration: none; margin-bottom: 8px;">
+      📥 Baixar PDF do Projeto
+    </a>
+    
+    <button onclick="closeSobreProjeto()" class="btn-login-cancel" style="width: 100%; border: none; background: none; margin-top: 5px; cursor: pointer;">Voltar ao perfil</button>
+  </div>
+</div>
+
+<div id="locationPermissionOverlay" class="modal-overlay hidden" onclick="closeLocationPrompt(event)">
+  <div class="modal-card" style="width: 90%; max-width: 400px; margin: auto; padding: 28px 24px; position: relative; border-radius: 20px; background: var(--cream) !important; border: 1.5px solid var(--cream-dark) !important; box-shadow: var(--shadow-lg) !important; text-align: center;">
+    
+    <div style="font-size: 42px; margin-bottom: 12px;">📍</div>
+    
+    <h3 style="color: var(--wine) !important; font-family: var(--font-display) !important; font-size: 24px; margin-bottom: 14px; font-weight: 700 !important; text-align: center;">
+      Ativar Localização?
+    </h3>
+    
+    <p style="font-size: 14px; color: var(--text-muted); text-align: center !important; line-height: 1.6; margin-bottom: 24px; font-family: var(--font-body); font-weight: 700 !important; width: 100%;">
+      Permita o acesso a sua localização para sabermos quais patrimônios históricos e culturais da cidade de São José dos Campos estão mais pertinho de você agora!
+    </p>
+    
+    <button onclick="acceptLocationPrompt()" class="btn-aplicar" style="width: 100%; padding: 14px; font-weight: 700; margin-bottom: 8px; font-family: var(--font-body);">
+      👍 Permitir Localização
+    </button>
+    
+    <button onclick="closeLocationPrompt()" class="btn-login-cancel" style="width: 100%; border: none; background: none; margin-top: 5px; cursor: pointer; color: var(--text-muted); font-family: var(--font-body); font-size: 13px;">
+      Agora não
+    </button>
   </div>
 </div>
 

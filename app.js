@@ -25,7 +25,7 @@ const PATRIMONIOS = [
     simulacoes: ["Restaurar fachada","Reparar estrutura","Pintura histórica","Conservação geral"],
     simResultTags: ["🔵 Melhoria na fachada","✅ Redução de infiltração","🏛️ Estilo original"],
     compareDesc: "Restauração da fachada e telhado. Reconstrução de elementos arquitetônicos em madeira e recuperação de estaque original. Intervenção baseada em documentação histórica.",
-    desc: "O Museu Municipal de São José dos Campos é um dos mais importantes centros culturais da cidade. Inaugurado em 1927, preserva vasto acervo histórico e cultural da região do Vale do Paraíba.",
+    desc: "O Museu Municipal de São José dos Campos é um dos mais importantes centros culturais da cidade. Inaugurado in 1927, preserva vasto acervo histórico e cultural da região do Vale do Paraíba.",
     conservacao: 65
   },
   {
@@ -126,6 +126,13 @@ const PATRIMONIOS = [
   }
 ];
 
+// ── Categorias Globais Dinâmicas ────────────────
+let CATEGORIAS = [
+  { value: "historico", label: "Histórico", emoji: "🏛️", color: "#6B1A2A", accent: "#C4973A", ring: "rgba(107,26,42,0.25)" },
+  { value: "cultural",  label: "Cultural",  emoji: "🎭", color: "#5A2775", accent: "#C484E8", ring: "rgba(90,39,117,0.25)" },
+  { value: "natural",   label: "Natural",   emoji: "🌿", color: "#1A5C2A", accent: "#5CB86E", ring: "rgba(26,92,42,0.25)" }
+];
+
 // ── Estado global ──────────────────────────────
 let userLocation = null;
 let currentPatrimonio = null;
@@ -150,6 +157,7 @@ async function initApp() {
   document.getElementById("splash").style.display = "none";
   document.getElementById("app").classList.remove("hidden");
 
+  renderCategoriasUI();
   requestLocation();
   renderHome();
   initMap();
@@ -191,6 +199,24 @@ function formatDist(m) {
 
 function requestLocation() {
   if (!navigator.geolocation) return;
+
+  if (localStorage.getItem("rememoria_gps_permitido") === "true") {
+    executarGpsNativo();
+    return;
+  }
+
+  const ultimaRecusa = localStorage.getItem("rememoria_gps_recusa_time");
+  const cincoDias = 5 * 24 * 60 * 60 * 1000;
+  
+  if (ultimaRecusa && (Date.now() - parseInt(ultimaRecusa, 10) < cincoDias)) {
+    console.log("GPS: Pop-up ocultado para não incomodar o usuário esta semana.");
+    return;
+  }
+
+  document.getElementById("locationPermissionOverlay").classList.remove("hidden");
+}
+
+function ejecutarGpsNativo() {
   navigator.geolocation.getCurrentPosition(pos => {
     userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
     renderHome();
@@ -198,10 +224,23 @@ function requestLocation() {
   }, () => {}, { enableHighAccuracy: false, timeout: 8000 });
 }
 
+function acceptLocationPrompt() {
+  localStorage.setItem("rememoria_gps_permitido", "true");
+  document.getElementById("locationPermissionOverlay").classList.add("hidden");
+  executarGpsNativo();
+}
+
+function closeLocationPrompt(e) {
+  if (e && e.target !== document.getElementById("locationPermissionOverlay")) return;
+  localStorage.setItem("rememoria_gps_recusa_time", Date.now().toString());
+  document.getElementById("locationPermissionOverlay").classList.add("hidden");
+}
+
 // ══════════════════════════════════════════════
 // NAVEGAÇÃO
 // ══════════════════════════════════════════════
 function goTo(screen, btn) {
+  closeBusca(); 
   if (screen === "admin" && !authState.isAdmin) {
     openLoginModal();
     return;
@@ -210,6 +249,9 @@ function goTo(screen, btn) {
   document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
   document.getElementById("screen-" + screen).classList.add("active");
   if (btn) btn.classList.add("active");
+
+  const navBar = document.querySelector('.bottom-nav');
+  if (navBar) navBar.classList.remove('nav-hidden');
 
   if (screen === "mapa" && mapInstance) {
     setTimeout(() => mapInstance.invalidateSize(), 100);
@@ -276,13 +318,13 @@ function initMap() {
     zoomControl: false
   });
 
-  camadaPadrao = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '© OpenStreetMap',
+  camadaPadrao = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    attribution: '© OpenStreetMap contributors © CARTO',
     maxZoom: 19
   });
 
-  camadaSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles © Esri',
+  camadaSatelite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+    attribution: '© Google Maps',
     maxZoom: 19
   });
 
@@ -300,18 +342,24 @@ function toggleMapSettings() {
 function changeMapStyle(estilo) {
   if (!mapInstance) return;
   
-  mapInstance.removeLayer(camadaPadrao);
-  mapInstance.removeLayer(camadaSatelite);
-  
-  document.getElementById('btnMapPadrao').classList.remove('active');
-  document.getElementById('btnMapSatelite').classList.remove('active');
-  
   if (estilo === 'padrao') {
-    camadaPadrao.addTo(mapInstance);
-    document.getElementById('btnMapPadrao').classList.add('active');
+    if (!mapInstance.hasLayer(camadaPadrao)) {
+      camadaPadrao.addTo(mapInstance);
+    }
+    if (mapInstance.hasLayer(camadaSatelite)) {
+      mapInstance.removeLayer(camadaSatelite);
+    }
+    document.getElementById('btnMapPadrao')?.classList.add('active');
+    document.getElementById('btnMapSatelite')?.classList.remove('active');
   } else {
-    camadaSatelite.addTo(mapInstance);
-    document.getElementById('btnMapSatelite').classList.add('active');
+    if (!mapInstance.hasLayer(camadaSatelite)) {
+      camadaSatelite.addTo(mapInstance);
+    }
+    if (mapInstance.hasLayer(camadaPadrao)) {
+      mapInstance.removeLayer(camadaPadrao);
+    }
+    document.getElementById('btnMapSatelite')?.classList.add('active');
+    document.getElementById('btnMapPadrao')?.classList.remove('active');
   }
   
   toggleMapSettings();
@@ -322,12 +370,13 @@ function addMapMarkers(data) {
   mapMarkers = [];
 
   data.forEach(p => {
-    const catCfg = {
-      historico: { emoji: "🏛", color: "#6B1A2A", accent: "#C4973A", ring: "rgba(107,26,42,0.25)" },
-      cultural:  { emoji: "🎭", color: "#5A2775", accent: "#C484E8", ring: "rgba(90,39,117,0.25)" },
-      natural:   { emoji: "🌿", color: "#1A5C2A", accent: "#5CB86E", ring: "rgba(26,92,42,0.25)" },
+    const cfg = CATEGORIAS.find(c => c.value === p.categoria) || {
+      emoji: "📍",
+      color: "#6B1A2A",
+      accent: "#C4973A",
+      ring: "rgba(107,26,42,0.25)",
+      label: p.categoria
     };
-    const cfg = catCfg[p.categoria] || catCfg.historico;
 
     const icon = L.divIcon({
       className: "",
@@ -347,8 +396,8 @@ function addMapMarkers(data) {
     });
 
     const conservColor = p.conservacao >= 80 ? "#3A7D44" : p.conservacao >= 60 ? "#C4973A" : "#C43A3A";
-    const catLabel = { historico: "Histórico", cultural: "Cultural", natural: "Natural" }[p.categoria] || p.categoria;
-    const catEmoji = { historico: "🏛", cultural: "🎭", natural: "🌿" }[p.categoria] || "📍";
+    const catLabel = cfg.label || p.categoria;
+    const catEmoji = cfg.emoji || "📍";
 
     let distHtml = "";
     if (userLocation && p.lat && p.lng) {
@@ -385,7 +434,7 @@ function addMapMarkers(data) {
 function filterMap(cat, btn) {
   document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  const filtered = cat === "all" ? PATRIMONIOS : PATRIMONIOS.filter(p => p.categoria === cat);
+  const filtered = cat === "all" ? PATRIMONIOS : PATRIMONIOS.filter(p => p.categoria === cat || (p.categoriasExtras && p.categoriasExtras.includes(cat)));
   addMapMarkers(filtered);
 }
 
@@ -408,27 +457,66 @@ function openModal(p) {
   currentPatrimonio = p;
   activeSimBtn = null;
 
-  document.getElementById("mImg").src = p.img;
-  document.getElementById("mTitle").textContent = p.nome;
-  document.getElementById("mAddr").textContent = p.endereco;
+  const mImg = document.getElementById("mImg");
+  if (mImg) mImg.src = p.img;
   
-  if (userLocation && p.lat && p.lng) {
-    const d = calcDist(userLocation.lat, userLocation.lng, p.lat, p.lng);
-    document.getElementById("mAddr").textContent = p.endereco + " · " + formatDist(d);
+  const mTitle = document.getElementById("mTitle");
+  if (mTitle) mTitle.textContent = p.nome;
+  
+  const mAddr = document.getElementById("mAddr");
+  if (mAddr) {
+    mAddr.textContent = p.endereco;
+    if (userLocation && p.lat && p.lng) {
+      const d = calcDist(userLocation.lat, userLocation.lng, p.lat, p.lng);
+      mAddr.textContent = p.endereco + " · " + formatDist(d);
+    }
   }
   
-  const catIcons = { historico:"🏛️", cultural:"🎭", natural:"🌿" };
-  document.getElementById("mTags").innerHTML = `<span class="tag">${catIcons[p.categoria]||"📍"} Centro Histórico</span><span class="tag">📅 Fundado em ${p.fundado}</span><span class="tag">🏗️ ${p.estilo}</span>`;
+  const cfgCat = CATEGORIAS.find(c => c.value === p.categoria) || { emoji: "📍", label: p.categoria };
+  const mTags = document.getElementById("mTags");
+  if (mTags) mTags.innerHTML = `<span class="tag">${cfgCat.emoji} ${cfgCat.label}</span><span class="tag">📅 Fundado em ${p.fundado}</span><span class="tag">🏗️ ${p.estilo}</span>`;
+
+  const mConserv = document.getElementById("mConservPercent");
+  if (mConserv) mConserv.textContent = `Índice: ${p.conservacao || 0}%`;
 
   const estado = Array.isArray(p.estado) ? p.estado : [];
-  document.getElementById("mEstado").innerHTML = estado.map(e => `<div class="estado-item"><div class="dot dot-${e.dot}"></div><span>${e.label}</span></div>`).join("");
-  document.getElementById("mDesc").textContent = p.desc || "";
+  const mEstado = document.getElementById("mEstado");
+  if (mEstado) mEstado.innerHTML = estado.map(e => `<div class="estado-item"><div class="dot dot-${e.dot}"></div><span>${e.label}</span></div>`).join("");
+  
+  const mDesc = document.getElementById("mDesc");
+  if (mDesc) mDesc.textContent = p.desc || "";
 
   const simulacoes = Array.isArray(p.simulacoes) ? p.simulacoes : [];
-  document.getElementById("mSimBtns").innerHTML = simulacoes.map(s => `<button class="sim-btn" onclick="selectSim(this,'${s}')">${s}</button>`).join("");
+  const simCard = document.getElementById("mSimCard");
+  if (simCard) {
+    if (simulacoes.length > 0) {
+      simCard.style.display = "block";
+      const mSimBtns = document.getElementById("mSimBtns");
+      if (mSimBtns) mSimBtns.innerHTML = simulacoes.map(s => `<button class="sim-btn" onclick="selectSim(this,'${s}')">${s}</button>`).join("");
+      
+      const simResultTags = Array.isArray(p.simResultTags) ? p.simResultTags : [];
+      const mSimTags = document.getElementById("mSimTags");
+      if (mSimTags) mSimTags.innerHTML = simResultTags.map(t => `<span class="sim-tag">${t}</span>`).join("");
+    } else {
+      simCard.style.display = "none";
+    }
+  }
 
-  const simResultTags = Array.isArray(p.simResultTags) ? p.simResultTags : [];
-  document.getElementById("mSimTags").innerHTML = simResultTags.map(t => `<span class="sim-tag">${t}</span>`).join("");
+  const hasMat = !!p.materiais;
+  const hasTec = !!p.tecnicas;
+  const hasNot = !!p.notas;
+  
+  const btnMat = document.getElementById("btnTechMat");
+  if (btnMat) btnMat.style.display = hasMat ? "flex" : "none";
+  
+  const btnTec = document.getElementById("btnTechConstr");
+  if (btnTec) btnTec.style.display = hasTec ? "flex" : "none";
+  
+  const btnNot = document.getElementById("btnTechNotas");
+  if (btnNot) btnNot.style.display = hasNot ? "flex" : "none";
+  
+  const techWrap = document.getElementById("mTechInfoWrap");
+  if (techWrap) techWrap.style.display = (hasMat || hasTec || hasNot) ? "block" : "none";
 
   updateFavBtn();
   if (!visited.includes(p.id)) {
@@ -437,8 +525,22 @@ function openModal(p) {
     updateProfileStats();
   }
 
-  document.getElementById("modalOverlay").classList.remove("hidden");
-  document.body.style.overflow = "hidden";
+  const overlay = document.getElementById("modalOverlay");
+  if (overlay) {
+    overlay.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function openTechPopup(title, text) {
+  document.getElementById("techPopupTitle").textContent = title;
+  document.getElementById("techPopupText").textContent = text;
+  document.getElementById("techPopupOverlay").classList.remove("hidden");
+}
+
+function closeTechPopup(e) {
+  if (e && e.target !== document.getElementById("techPopupOverlay")) return;
+  document.getElementById("techPopupOverlay").classList.add("hidden");
 }
 
 function closeModal(e) {
@@ -476,7 +578,9 @@ function applySimulation() {
   alert(`Simulação "${activeSimBtn}" aplicada com sucesso!`);
 }
 
-function show3D() { alert("Visualização 3D em desenvolvimento!"); }
+function show3D() { 
+  openTechPopup("Visualização 3D 🌐", "Estamos preparando a visualização 3D! Em breve você poderá desfrutar desta experiência :)"); 
+}
 
 function openComparacao() {
   if (!currentPatrimonio) return;
@@ -494,7 +598,6 @@ function closeCompare(e) {
   removeSlider();
 }
 
-// ── Slider JS ──
 let sliderDragging = false;
 function initSlider() {
   const divider = document.getElementById("compareDivider");
@@ -549,7 +652,7 @@ function renderChatbot() {
       </div>
       <div class="chatbot-patrimonio-selector">
         <label>Patrimônio selecionado</label>
-        <select id="chatPatrimSelect" onchange="selectChatPatrimonio(this.value)">
+        <select id="chatPatrimSelect" onchange="selectChatpatrimonio(this.value)">
           <option value="">— Escolha um patrimônio —</option>
           ${options}
         </select>
@@ -571,7 +674,7 @@ function renderChatbot() {
   `;
 }
 
-function selectChatPatrimonio(id) {
+function selectChatpatrimonio(id) {
   chatSelectedPatrimonio = PATRIMONIOS.find(p => p.id === id) || null;
   chatHistory = []; 
   const msgs = document.getElementById("chatMessages");
@@ -638,6 +741,7 @@ function appendChatMsg(container, type, text) {
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
+
 function sendChatSuggestion(text) {
   const input = document.getElementById("chatInput");
   if (!input) return;
@@ -679,19 +783,29 @@ function initScrollAnimation() {
   const navBar = document.querySelector('.bottom-nav');
   const screens = document.querySelectorAll('.screen');
 
+  if (!navBar) return;
+
   screens.forEach(screen => {
+    let isScrolling = false;
+    
     screen.addEventListener('scroll', () => {
-      let currentScrollY = screen.scrollTop;
-      if (currentScrollY > 40) {
-        navBar.classList.add('nav-hidden');
-      } else if (currentScrollY === 0) {
-        navBar.classList.remove('nav-hidden');
+      if (!isScrolling) {
+        window.requestAnimationFrame(() => {
+          let currentScrollY = screen.scrollTop;
+          
+          if (currentScrollY > 40) {
+            navBar.classList.add('nav-hidden');
+          } else {
+            navBar.classList.remove('nav-hidden');
+          }
+          isScrolling = false;
+        });
+        isScrolling = true;
       }
-    });
+    }, { passive: true }); 
   });
 }
 
-// Injetar keyframe da animação do marker no documento
 (function injectMarkerKeyframe() {
   if (document.getElementById("markerPulseStyle")) return;
   const style = document.createElement("style");
@@ -705,9 +819,7 @@ function initScrollAnimation() {
 // ══════════════════════════════════════════════
 function openBusca() {
   document.getElementById("buscaScreen").classList.add("active");
-  renderBuscaAvancada(); // Desenha a tela
-  
-  // Opcional: foca automaticamente no campo de digitação após a tela abrir
+  renderBuscaAvancada(); 
   setTimeout(() => document.getElementById("buscaInputAvancada").focus(), 350);
 }
 
@@ -715,40 +827,58 @@ function closeBusca() {
   document.getElementById("buscaScreen").classList.remove("active");
 }
 
+/* =======================================================
+   INTERCEPTADOR GLOBAL DE POP-UPS (ALERTS) ATUALIZADO
+   Substitui o alerta e atualiza mensagens automáticas
+   ======================================================= */
+window.alert = function(mensagem) {
+  if (mensagem === "Em breve!") {
+    mensagem = "Estamos preparando essa experiência para você! :)";
+  }
+  openTechPopup("ReMemória 🏛️", mensagem);
+};
+
+/* =======================================================
+   FUNÇÕES PARA GERENCIAR O POP-UP "SOBRE O PROJETO"
+   ======================================================= */
+function openSobreProjeto() {
+  document.getElementById("sobreProjetoOverlay").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeSobreProjeto(e) {
+  if (e && e.target !== document.getElementById("sobreProjetoOverlay")) return;
+  document.getElementById("sobreProjetoOverlay").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
 function setBuscaFilter(btn) {
-  // Troca a cor do botão ativo
   document.querySelectorAll(".busca-filter-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 }
 
 function renderBuscaAvancada(query = "") {
   let data = PATRIMONIOS;
-  
-  // Filtra se o usuário estiver digitando
   if (query) {
     data = data.filter(p => p.nome.toLowerCase().includes(query.toLowerCase()) || p.categoria.toLowerCase().includes(query.toLowerCase()));
   }
   
   const container = document.getElementById("buscaContentAvançada");
-  
-  // Pega o primeiro item de destaque para o card grande
+  if (!container) return; 
+
   const destaque = data.find(p => p.destaque) || data[0];
   const lista = data.filter(p => p.id !== destaque?.id);
 
-  const catEmojis = { historico: "🏛️", cultural: "🎭", natural: "🌿" };
-
   let html = "";
-  
-  // Monta o Card Destaque Gigante
   if (destaque) {
     html += `
       <div class="busca-feat-card" onclick='openModalById("${destaque.id}")'>
-        <div class="busca-feat-icon">${catEmojis[destaque.categoria] || "⛪"}</div>
+        <div class="busca-feat-icon" style="background-image: url('${destaque.img}'); background-size: cover; background-position: center;"></div>
         <div class="busca-feat-info">
           <span class="hero-badge" style="background:#C4973A;color:#4A0F1E;padding:4px 10px;font-size:10px;border-radius:6px;font-weight:700;">DESTAQUE</span>
           <h3>${destaque.nome}</h3>
           <div class="busca-feat-meta">
-            <span>📍 ${destaque.endereco.split(",")[0]}</span>
+            <span>📍 ${destaque.endereco.split(",")[0] || destaque.endereco}</span>
             <span>⏱️ Fund. ${destaque.fundado}</span>
           </div>
         </div>
@@ -756,15 +886,14 @@ function renderBuscaAvancada(query = "") {
     `;
   }
 
-  // Monta a lista embaixo
   html += `<div class="busca-list">`;
   html += lista.map(p => `
     <div class="busca-list-item" onclick='openModalById("${p.id}")'>
-      <div class="busca-list-icon">${catEmojis[p.categoria] || "🏛️"}</div>
+      <div class="busca-list-icon" style="background-image: url('${p.img}'); background-size: cover; background-position: center; border: none;"></div>
       <div class="busca-list-info">
         <h4>${p.nome}</h4>
         <div class="busca-list-meta">
-          <span>📍 S. J. dos Campos</span>
+          <span>📍 ${p.endereco.split("—")[1] || "S. J. dos Campos"}</span>
           <span>⏱️ Fund. ${p.fundado}</span>
         </div>
       </div>
@@ -776,15 +905,6 @@ function renderBuscaAvancada(query = "") {
   container.innerHTML = html;
 }
 
-function filterBuscaAvancada(val) {
-  renderBuscaAvancada(val);
-}
-
-// ══════════════════════════════════════════════
-// AUTENTICAÇÃO E ADMIN — SISTEMA DE LOGIN E CRUD
-// ══════════════════════════════════════════════
-
-// ── Hash simples (SHA-256 puro JS) ──
 function _sha256(str) {
   function rr(v,a){return(v>>>a)|(v<<(32-a));}
   const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
@@ -808,6 +928,7 @@ function _sha256(str) {
   }
   return h.map(v=>v.toString(16).padStart(8,'0')).join('');
 }
+
 async function hashStr(str) {
   if(window.crypto&&window.crypto.subtle){
     try{const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}catch(e){}
@@ -1126,14 +1247,6 @@ async function removerAdmin(username, displayName) {
   }
 }
 
-function switchAdminTab(tab, btn) {
-  document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".admin-tab-content").forEach(c => c.classList.remove("active"));
-  btn.classList.add("active");
-  document.getElementById("admin-tab-" + tab).classList.add("active");
-  if (tab === "lista") loadAdminList();
-}
-
 function updateConservLabel(val) { document.getElementById("conserv-label").textContent = val + "%"; }
 
 function previewImg(inputId, previewId) {
@@ -1195,77 +1308,81 @@ function readEstadoInputs() {
 
 function resetAdminForm() {
   document.getElementById("adminForm").reset();
-  document.getElementById("conserv-label").textContent = "70%";
-  document.getElementById("prev-img").classList.add("hidden");
-  document.getElementById("prev-imgafter").classList.add("hidden");
-  const container = document.getElementById("estadoInputs");
-  container.innerHTML = `
+  document.getElementById("af-materiais").value = "";
+  document.getElementById("af-tecnicas").value = "";
+  document.getElementById("af-notas").value = "";
+  
+  const estadoContainer = document.getElementById("estadoInputs");
+  estadoContainer.innerHTML = `
     <div class="estado-input-row">
       <select class="estado-dot-sel"><option value="green">🟢</option><option value="yellow">🟡</option><option value="red">🔴</option></select>
       <input type="text" placeholder="Ex: Estrutura: Boa" class="estado-label-inp" />
       <button type="button" class="btn-rm-estado" onclick="removeEstado(this)">✕</button>
     </div>
   `;
-}
+
+  const catContainer = document.getElementById("categoriaInputs");
+  if (catContainer) {
+    catContainer.innerHTML = `
+      <div class="cat-input-row" style="display:flex; gap:8px; align-items:center; width:100%;">
+        <select class="af-cat-select" style="flex:1;">
+          ${CATEGORIAS.map(cat => `<option value="${cat.value}">${cat.emoji} ${cat.label}</option>`).join("")}
+        </select>
+        <button type="button" class="btn-rm-estado" onclick="removeCategoriaRow(this)" style="display:none;">✕</button>
+      </div>
+    `;
+  }
+} 
 
 async function salvarPatrimonio() {
-  const nome = document.getElementById("af-nome").value.trim();
-  const id   = document.getElementById("af-id").value.trim().replace(/\s+/g, "-").toLowerCase();
-  const end  = document.getElementById("af-end").value.trim();
-  const lat  = parseFloat(document.getElementById("af-lat").value);
-  const lng  = parseFloat(document.getElementById("af-lng").value);
-  const img  = document.getElementById("af-img").value.trim();
-  const desc = document.getElementById("af-desc").value.trim();
+  try {
+    const id = (document.getElementById("af-id").value || "").trim() || null;
+    const nome = (document.getElementById("af-nome").value || "").trim();
+    if (!nome) { showAdminMsg("Nome é obrigatório.", "error"); return; }
 
-  if (!nome || !id || !end || isNaN(lat) || isNaN(lng) || !img || !desc) {
-    showAdminMsg("⚠️ Preencha todos os campos obrigatórios (*)", "error"); return;
+    const item = {
+      id: id || nome.toLowerCase().replace(/[^a-z0-9]+/gi, '-'),
+      nome,
+      endereco: (document.getElementById("af-end").value || "").trim(),
+      categoria: document.querySelector('.af-cat-select')?.value || 'historico',
+      fundado: (document.getElementById("af-fundado").value || "").trim(),
+      estilo: (document.getElementById("af-estilo").value || "").trim(),
+      img: (document.getElementById("af-img").value || "").trim(),
+      imgAfter: (document.getElementById("af-imgafter").value || "").trim(),
+      desc: (document.getElementById("af-desc").value || "").trim(),
+      compareDesc: (document.getElementById("af-comparedesc").value || "").trim(),
+      conservacao: parseInt(document.getElementById("af-conserv").value || 70, 10),
+      destaque: !!document.getElementById("af-destaque").checked,
+      simulacoes: (document.getElementById("af-sims").value || "").split(/,\s*/).filter(Boolean),
+      simResultTags: (document.getElementById("af-simtags").value || "").split(/,\s*/).filter(Boolean),
+      estado: readEstadoInputs(),
+      lat: parseFloat(document.getElementById("af-lat").value) || 0,
+      lng: parseFloat(document.getElementById("af-lng").value) || 0,
+      materiais: (document.getElementById("af-materiais").value || "").trim(),
+      tecnicas: (document.getElementById("af-tecnicas").value || "").trim(),
+      notas: (document.getElementById("af-notas").value || "").trim(),
+    };
+
+    const existingIdx = PATRIMONIOS.findIndex(p => p.id === item.id);
+    if (existingIdx >= 0) PATRIMONIOS[existingIdx] = item;
+    else PATRIMONIOS.push(item);
+
+    if (window._db) {
+      try {
+        const { doc, setDoc } = window._fbModules;
+        await setDoc(doc(window._db, "patrimonios", item.id), item);
+      } catch(e) { console.warn('Firebase save error:', e); }
+    }
+
+    showAdminMsg('Patrimônio salvo com sucesso!', 'success');
+    resetAdminForm();
+    renderHome();
+    addMapMarkers(PATRIMONIOS);
+    loadAdminList();
+  } catch(err) {
+    console.error(err);
+    showAdminMsg('Erro ao salvar patrimônio.', 'error');
   }
-  if (!/^[a-z0-9-]+$/.test(id)) {
-    showAdminMsg("⚠️ ID só pode ter letras minúsculas, números e hífens.", "error"); return;
-  }
-
-  const patrimonio = {
-    id, nome, endereco: end,
-    categoria: document.getElementById("af-cat").value,
-    fundado: document.getElementById("af-fundado").value.trim() || "?",
-    estilo: document.getElementById("af-estilo").value.trim() || "Não informado",
-    lat, lng, img,
-    imgAfter: document.getElementById("af-imgafter").value.trim() || img,
-    desc,
-    compareDesc: document.getElementById("af-comparedesc").value.trim() || "",
-    conservacao: parseInt(document.getElementById("af-conserv").value),
-    estado: readEstadoInputs(),
-    simulacoes: document.getElementById("af-sims").value.split(",").map(s=>s.trim()).filter(Boolean),
-    simResultTags: document.getElementById("af-simtags").value.split(",").map(s=>s.trim()).filter(Boolean),
-    destaque: document.getElementById("af-destaque").checked,
-    dist: "Calculando...",
-    criadoEm: Date.now()
-  };
-
-  const btn = document.getElementById("btn-salvar-txt");
-  btn.textContent = "Salvando...";
-
-  let savedToFirebase = false;
-  if (window._db) {
-    try {
-      const { doc, setDoc } = window._fbModules;
-      await setDoc(doc(window._db, "patrimonios", id), patrimonio);
-      savedToFirebase = true;
-    } catch(e) { console.warn("Firebase error:", e.message); }
-  }
-
-  const idx = PATRIMONIOS.findIndex(p => p.id === id);
-  if (idx >= 0) PATRIMONIOS[idx] = patrimonio;
-  else PATRIMONIOS.push(patrimonio);
-
-  renderHome();
-  addMapMarkers(PATRIMONIOS);
-  renderChatbot();
-
-  btn.textContent = "💾 Salvar no Firebase";
-  if (savedToFirebase) { showAdminMsg("✅ Patrimônio salvo no Firebase e no app com sucesso!", "success"); } 
-  else { showAdminMsg("⚠️ Salvo localmente (Firebase não conectado). Reinicie o app para persistir.", "warn"); }
-  resetAdminForm();
 }
 
 async function loadAdminList() {
@@ -1309,6 +1426,67 @@ async function loadAdminList() {
   `).join("");
 }
 
+function addCategoriaRow() {
+  const container = document.getElementById("categoriaInputs");
+  const row = document.createElement("div");
+  row.className = "cat-input-row";
+  row.style.cssText = "display:flex; gap:8px; align-items:center; width:100%; margin-top:4px;";
+  row.innerHTML = `
+    <select class="af-cat-select" style="flex:1;">
+      ${CATEGORIAS.map(cat => `<option value="${cat.value}">${cat.emoji} ${cat.label}</option>`).join("")}
+    </select>
+    <button type="button" class="btn-rm-estado" onclick="removeCategoriaRow(this)">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function removeCategoriaRow(btn) {
+  btn.closest(".cat-input-row").remove();
+}
+
+function renderCategoriasUI() {
+  const selectsAdmin = document.querySelectorAll(".af-cat-select");
+  selectsAdmin.forEach(select => {
+    const currentVal = select.value; 
+    select.innerHTML = CATEGORIAS.map(c => `<option value="${c.value}">${c.emoji} ${c.label}</option>`).join("");
+    if (currentVal) select.value = currentVal;
+  });
+
+  const mapFilters = document.querySelector(".map-filters");
+  if (mapFilters) {
+    mapFilters.innerHTML = `
+      <button class="filter-btn active" data-cat="all" onclick="filterMap('all',this)">🏛️ Todos</button>
+    ` + CATEGORIAS.map(c => `
+      <button class="filter-btn" data-cat="${c.value}" onclick="filterMap('${c.value}',this)">${c.emoji} ${c.label}</button>
+    `).join("");
+  }
+}
+
+function criarNovaCategoriaGlobal() {
+  const nomeInp = document.getElementById("ac-nome");
+  const emojiInp = document.getElementById("ac-emoji");
+  if (!nomeInp || !emojiInp) return;
+  
+  const nome = nomeInp.value.trim();
+  const emoji = emojiInp.value.trim() || "📍";
+  if (!nome) { alert("Por favor, digite o nome da categoria."); return; }
+  
+  const value = nome.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
+  if (CATEGORIAS.some(c => c.value === value)) { alert("Esta categoria já existe no sistema!"); return; }
+  
+  const paletasNovas = [
+    { color: "#8B4513", accent: "#D2691E", ring: "rgba(139,69,19,0.25)" },
+    { color: "#008080", accent: "#48D1CC", ring: "rgba(0,128,128,0.25)" },
+    { color: "#4B0082", accent: "#9370DB", ring: "rgba(75,0,130,0.25)" }
+  ];
+  const corConfig = paletasNovas[CATEGORIAS.length % paletasNovas.length];
+  
+  CATEGORIAS.push({ value: value, label: nome, emoji: emoji, ...corConfig });
+  renderCategoriasUI();
+  nomeInp.value = ""; emojiInp.value = "";
+  alert(`Categoria "${nome}" registrada globalmente!`);
+}
+
 function editPatrimonio(id) {
   const p = PATRIMONIOS.find(x => x.id === id);
   if (!p) return;
@@ -1316,9 +1494,26 @@ function editPatrimonio(id) {
   const tabBtn = document.querySelector('[data-tab="novo"]');
   switchAdminTab("novo", tabBtn);
 
+  const catContainer = document.getElementById("categoriaInputs");
+  if (catContainer) {
+    catContainer.innerHTML = ""; 
+    const catList = [p.categoria];
+    if (p.categoriasExtras && Array.isArray(p.categoriasExtras)) {
+      catList.push(...p.categoriasExtras);
+    }
+
+    catContainer.innerHTML = catList.map((catVal, i) => `
+      <div class="cat-input-row" style="display:flex; gap:8px; align-items:center; width:100%;">
+        <select class="af-cat-select" style="flex:1;">
+          ${CATEGORIAS.map(cat => `<option value="${cat.value}" ${cat.value===catVal?"selected":""}>${cat.emoji} ${cat.label}</option>`).join("")}
+        </select>
+        <button type="button" class="btn-rm-estado" onclick="removeCategoriaRow(this)" ${i===0?"style=\"display:none;\"":""}>✕</button>
+      </div>
+    `).join("");
+  }
+
   document.getElementById("af-nome").value    = p.nome || "";
   document.getElementById("af-id").value      = p.id || "";
-  document.getElementById("af-cat").value     = p.categoria || "historico";
   document.getElementById("af-fundado").value = p.fundado || "";
   document.getElementById("af-estilo").value  = p.estilo || "";
   document.getElementById("af-end").value     = p.endereco || "";
@@ -1330,6 +1525,9 @@ function editPatrimonio(id) {
   document.getElementById("af-comparedesc").value = p.compareDesc || "";
   document.getElementById("af-conserv").value = p.conservacao || 70;
   document.getElementById("conserv-label").textContent = (p.conservacao || 70) + "%";
+  document.getElementById("af-materiais").value = p.materiais || "";
+  document.getElementById("af-tecnicas").value = p.tecnicas || "";
+  document.getElementById("af-notas").value = p.notas || "";
   document.getElementById("af-sims").value    = (p.simulacoes || []).join(", ");
   document.getElementById("af-simtags").value = (p.simResultTags || []).join(", ");
   document.getElementById("af-destaque").checked = !!p.destaque;
@@ -1337,23 +1535,25 @@ function editPatrimonio(id) {
   previewImg("af-img", "prev-img");
   previewImg("af-imgafter", "prev-imgafter");
 
-  const container = document.getElementById("estadoInputs");
-  container.innerHTML = "";
-  const estados = p.estado && p.estado.length ? p.estado : [{ dot: "green", label: "" }];
-  estados.forEach(e => {
-    const row = document.createElement("div");
-    row.className = "estado-input-row";
-    row.innerHTML = `
-      <select class="estado-dot-sel">
-        <option value="green" ${e.dot==="green"?"selected":""}>🟢</option>
-        <option value="yellow" ${e.dot==="yellow"?"selected":""}>🟡</option>
-        <option value="red" ${e.dot==="red"?"selected":""}>🔴</option>
-      </select>
-      <input type="text" value="${e.label}" class="estado-label-inp" />
-      <button type="button" class="btn-rm-estado" onclick="removeEstado(this)">✕</button>
-    `;
-    container.appendChild(row);
-  });
+  const estadoContainer = document.getElementById("estadoInputs");
+  if (estadoContainer) {
+    estadoContainer.innerHTML = "";
+    const estados = p.estado && p.estado.length ? p.estado : [{ dot: "green", label: "" }];
+    estados.forEach(e => {
+      const row = document.createElement("div");
+      row.className = "estado-input-row";
+      row.innerHTML = `
+        <select class="estado-dot-sel">
+          <option value="green" ${e.dot==="green"?"selected":""}>🟢</option>
+          <option value="yellow" ${e.dot==="yellow"?"selected":""}>🟡</option>
+          <option value="red" ${e.dot==="red"?"selected":""}>🔴</option>
+        </select>
+        <input type="text" value="${e.label}" class="estado-label-inp" />
+        <button type="button" class="btn-rm-estado" onclick="removeEstado(this)">✕</button>
+      `;
+      estadoContainer.appendChild(row);
+    });
+  }
 
   showAdminMsg(`Editando: ${p.nome}. Modifique e salve novamente.`, "info");
   document.getElementById("adminForm").scrollIntoView({ behavior: "smooth" });
@@ -1379,3 +1579,34 @@ async function deletePatrimonio(id) {
   loadAdminList();
 }
 
+function abrirNoGoogleMaps() {
+  if (!currentPatrimonio) return;
+  const enderecoEncoded = encodeURIComponent(currentPatrimonio.endereco);
+  const url = `https://www.google.com/maps/search/?api=1&query=${enderecoEncoded}`;
+  window.open(url, '_blank');
+}
+
+async function compartilharPatrimonio() {
+  if (!currentPatrimonio) return;
+  const p = currentPatrimonio;
+  const link = window.location.origin + window.location.pathname + "?id=" + p.id;
+  
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `ReMemória: ${p.nome}`,
+        text: `Veja os detalhes de ${p.nome} no app ReMemória.`,
+        url: link
+      });
+    } catch (err) {
+      console.warn("Compartilhamento cancelado.");
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(link);
+      alert("Link do patrimônio copiado para a área de transferência!");
+    } catch (err) {
+      alert("Link para compartilhar: " + link);
+    }
+  }
+}
