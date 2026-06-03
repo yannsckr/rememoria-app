@@ -1852,6 +1852,7 @@ async function processarCSV() {
 
   reader.onerror = () => mostrarMsgLote("Erro ao ler o arquivo.", "error");
   reader.readAsText(file);
+}
 
 function mostrarMsgLote(text, type) {
   const el = document.getElementById("admin-lote-msg");
